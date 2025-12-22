@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Informações do Alvo - Polícia Civil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="header">
+        <img src="images/logo.png" alt="Polícia Civil">
+    </div>
+
+    <div class="title">
+        <h1>RONDÔNIA</h1>
+        <h2>POLÍCIA CIVIL</h2>
+    </div>
+
+    <div class="info-container">
+        <div class="subtitle">
+            Informações do Alvo
+        </div>
+
+        <p class="nome-alvo">
+            Nome do indivíduo:
+            <strong id="nome-alvo">carregando...</strong>
+        </p>
+    </div>
+
+
+  <div class="buttons">
+
+    <a id="btn-fotos" href="fotos.html" class="button">
+      <i class="fas fa-camera"></i>
+      <span>Fotos</span>
+    </a>
+
+    <a id="btn-mapa" href="mapa.html" class="button">
+      <i class="fas fa-map-marker-alt"></i>
+      <span>Mapa</span>
+    </a>
+
+    <a id="btn-qualificacao" href="qualificacao.html" class="button">
+      <i class="fas fa-id-card"></i>
+      <span>Qualificação</span>
+    </a>
+
+    <a id="btn-endereco" href="endereco.html" class="button">
+      <i class="fas fa-map-signs"></i>
+      <span>Endereço</span>
+    </a>
+
+    <a id="btn-informacao" href="informacao.html" class="button btn-full">
+      <i class="fas fa-info-circle"></i>
+      <span>Informações</span>
+    </a>
+  </div>
+
+  <script>
+    // Captura o ID da URL principal (ex: index.html?id=1)
+    const params = new URLSearchParams(window.location.search);
+    const idAlvo = params.get('id');
+
+    if (idAlvo) {
+        // Atualiza todos os links dos botões para incluírem o ID do alvo
+        const sufixo = `?id=${idAlvo}`;
+        document.getElementById('btn-fotos').href += sufixo;
+        document.getElementById('btn-mapa').href += sufixo;
+        document.getElementById('btn-qualificacao').href += sufixo;
+        document.getElementById('btn-endereco').href += sufixo;
+        document.getElementById('btn-informacao').href += sufixo;
+
+        // Busca o nome do alvo para exibir no cabeçalho
+        fetch(`http://localhost:3000/alvo/${idAlvo}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('nome-alvo').textContent = data.nome || "Não encontrado";
+            })
+            .catch(err => {
+                console.error("Erro ao buscar nome:", err);
+                document.getElementById('nome-alvo').textContent = "Erro de conexão";
+            });
+    } else {
+        document.getElementById('nome-alvo').textContent = "ID não fornecido";
+    }
+  </script>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

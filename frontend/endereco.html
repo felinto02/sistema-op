@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endereço do Alvo - Polícia Civil</title>
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        .home-icon {
+            position: absolute;
+            top: 25px;
+            left: 20px;
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+        }
+
+        /* Área da Foto da Fachada */
+        .photo-area {
+            margin: 20px auto;
+            width: 90%;
+            max-width: 500px;
+            height: 250px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            display: none; /* Só aparece se houver foto */
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .photo-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .info-grid div {
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #1a1a1a;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .label {
+            font-weight: bold;
+            display: block;
+            font-size: 11px;
+            color: #555;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Destaque para Observações Táticas */
+        .obs-tactica {
+            grid-column: span 3;
+            background-color: #fff3cd !important; /* Cor de alerta leve */
+            border-left: 5px solid #ffc107;
+        }
+
+        .full-width { grid-column: span 3; }
+        .col-span-2 { grid-column: span 2; }
+
+        .btn-voltar {
+            margin: 20px auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" id="home-link" class="home-icon">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <div class="header">
+        <img src="images/logo.png" alt="Polícia Civil">
+    </div>
+
+    <div class="info-container">
+        <div class="subtitle">Localização e Inteligência</div>
+        <p class="nome-alvo">Alvo: <strong id="header-nome">Carregando...</strong></p>
+    </div>
+
+    <div class="photo-area" id="container-foto-casa">
+        <img id="foto-casa" alt="Fachada do Local">
+    </div>
+    
+    <div class="info-grid">
+        <div class="full-width">
+            <span class="label">Rua/Logradouro:</span> 
+            <span id="rua" class="value">...</span>
+        </div>
+        <div>
+            <span class="label">Nº:</span> 
+            <span id="numero" class="value">...</span>
+        </div>
+        <div class="col-span-2">
+            <span class="label">Bairro:</span> 
+            <span id="bairro" class="value">...</span>
+        </div>
+        <div class="col-span-2">
+            <span class="label">Cidade:</span> 
+            <span id="cidade" class="value">...</span>
+        </div>
+        <div>
+            <span class="label">UF:</span> 
+            <span id="uf" class="value">...</span>
+        </div>
+
+        <div class="full-width">
+            <span class="label">Ponto de Referência:</span> 
+            <span id="referencia" class="value">...</span>
+        </div>
+
+        <div class="obs-tactica">
+            <span class="label" style="color: #856404;"><i class="fas fa-exclamation-triangle"></i> Observações Táticas:</span> 
+            <span id="obs-tactica" class="value">...</span>
+        </div>
+    </div>
+
+    <a href="index.html" id="link-voltar" class="btn-voltar">
+        <i class="fas fa-arrow-left"></i> Voltar ao Início
+    </a>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const idAlvo = params.get('id');
+
+        if (idAlvo) {
+            const urlIndex = `index.html?id=${idAlvo}`;
+            document.getElementById('link-voltar').href = urlIndex;
+            document.getElementById('home-link').href = urlIndex;
+
+            // Busca os dados da tabela alvos e alvo_enderecos
+            fetch(`http://localhost:3000/alvo/${idAlvo}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('header-nome').textContent = data.nome;
+                    
+                    // Dados de Endereço
+                    document.getElementById('rua').textContent = data.rua || 'Não informado';
+                    document.getElementById('numero').textContent = data.numero || 'S/N';
+                    document.getElementById('bairro').textContent = data.bairro || 'Não informado';
+                    document.getElementById('cidade').textContent = data.cidade || 'Não informado';
+                    document.getElementById('uf').textContent = data.uf || '--';
+                    document.getElementById('referencia').textContent = data.ponto_referencia || 'Nenhum ponto de referência';
+                    document.getElementById('obs-tactica').textContent = data.observacoes_tacticas || 'Nenhuma observação relevante.';
+
+                    // Foto da fachada (se houver o campo foto_casa no seu banco)
+                    if (data.foto_casa && data.foto_casa.length > 50) {
+                        document.getElementById('foto-casa').src = `data:image/jpeg;base64,${data.foto_casa}`;
+                        document.getElementById('container-foto-casa').style.display = 'flex';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('header-nome').textContent = "Erro ao carregar";
+                });
+        }
+    </script>
+</body>
+</html>

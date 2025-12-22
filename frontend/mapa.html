@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Operacional - Polícia Civil</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        .home-icon { position: absolute; top: 25px; left: 20px; font-size: 24px; color: rgba(255, 255, 255, 0.7); text-decoration: none; }
+        
+        #map-container {
+            margin: 20px;
+            height: 350px;
+            background: #eee;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        iframe { width: 100%; height: 100%; border: none; }
+
+        .btn-navegar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+            color: white;
+            margin: 20px;
+            padding: 18px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .endereco-tag {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" id="home-link" class="home-icon"><i class="fas fa-home"></i></a>
+
+    <div class="header">
+        <img src="images/logo.png" alt="Polícia Civil">
+    </div>
+
+    <div class="info-container">
+        <div class="subtitle">Localização do Alvo</div>
+        <p class="nome-alvo" id="nome-exibicao">Carregando...</p>
+    </div>
+
+    <div id="map-container">
+        <iframe id="mapa-frame" src="" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+
+    <div class="endereco-tag" id="txt-endereco">Buscando endereço...</div>
+
+    <a href="#" id="link-trajeto" class="btn-navegar" target="_blank">
+        <i class="fas fa-directions"></i> INICIAR NAVEGAÇÃO (GPS)
+    </a>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const idAlvo = params.get('id');
+
+        if (idAlvo) {
+            const urlIndex = `index.html?id=${idAlvo}`;
+            document.getElementById('home-link').href = urlIndex;
+
+            fetch(`http://localhost:3000/alvo/${idAlvo}`)
+                .then(res => res.json())
+                .then(data => {
+                    const endereco = `${data.logradouro}, ${data.numero}, ${data.bairro}, ${data.cidade} - ${data.uf}`;
+                    
+                    document.getElementById('nome-exibicao').textContent = data.nome;
+                    document.getElementById('txt-endereco').textContent = endereco;
+
+                    // 1. Mapa de Visualização (Embed)
+                    const embedUrl = `https://www.google.com/maps?q=${encodeURIComponent(endereco)}&output=embed`;
+                    document.getElementById('mapa-frame').src = embedUrl;
+
+                    // 2. Link de Navegação Tática (Google Maps modo Direções)
+                    // O parâmetro dir_action=navigate força o GPS a abrir direto
+                    const gpsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(endereco)}&travelmode=driving`;
+                    document.getElementById('link-trajeto').href = gpsUrl;
+                });
+        }
+    </script>
+</body>
+</html>

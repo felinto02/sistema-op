@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qualificação do Alvo - Polícia Civil</title>
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        .home-icon {
+            position: absolute;
+            top: 25px;
+            left: 20px;
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .info-grid div {
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #1a1a1a;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .label {
+            font-weight: bold;
+            display: block;
+            font-size: 12px;
+            color: #333;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .value {
+            font-size: 15px;
+            word-break: break-word;
+        }
+
+        .full-width, .col-span-3 { grid-column: span 3; }
+        .col-span-2 { grid-column: span 2; }
+
+        .observacao {
+            min-height: 80px;
+        }
+
+        .btn-voltar {
+            margin: 20px auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" id="home-link" class="home-icon">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <div class="header">
+        <img src="images/logo.png" alt="Polícia Civil">
+    </div>
+
+    <div class="info-container">
+        <div class="subtitle">Qualificação do Alvo</div>
+        <p class="nome-alvo">Nome: <strong id="header-nome">Carregando...</strong></p>
+    </div>
+
+    <div class="info-grid">
+        <div class="col-span-3">
+            <span class="label">Nome Completo:</span>
+            <span id="nome" class="value">...</span>
+        </div>
+        <div class="col-span-3">
+            <span class="label">Mãe:</span>
+            <span id="nome-mae" class="value">...</span>
+        </div>
+        <div class="col-span-3">
+            <span class="label">Pai:</span>
+            <span id="nome-pai" class="value">...</span>
+        </div>
+        <div>
+            <span class="label">D.T. Nasc.:</span>
+            <span id="data-nascimento" class="value">...</span>
+        </div>
+        <div>
+            <span class="label">Natural:</span>
+            <span id="natural" class="value">...</span>
+        </div>
+        <div>
+            <span class="label">UF:</span>
+            <span id="uf" class="value">...</span>
+        </div>
+        <div class="col-span-2">
+            <span class="label">CPF:</span>
+            <span id="cpf" class="value">...</span>
+        </div>
+        <div>
+            <span class="label">RG:</span>
+            <span id="rg" class="value">...</span>
+        </div>
+        <div class="col-span-3 observacao">
+            <span class="label">Observação:</span>
+            <span id="observacao" class="value">...</span>
+        </div>
+    </div>
+
+    <a href="index.html" id="link-voltar" class="btn-voltar">
+        <i class="fas fa-arrow-left"></i> Voltar ao Início
+    </a>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const idAlvo = params.get('id');
+
+        if (idAlvo) {
+            const urlIndex = `index.html?id=${idAlvo}`;
+            document.getElementById('link-voltar').href = urlIndex;
+            document.getElementById('home-link').href = urlIndex;
+
+            fetch(`http://localhost:3000/alvo/${idAlvo}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Preenchimento dos campos dinâmicos baseados no SQL sugerido
+                    document.getElementById('header-nome').textContent = data.nome || 'N/A';
+                    document.getElementById('nome').textContent = data.nome || 'Não informado';
+                    document.getElementById('nome-mae').textContent = data.mae || 'Não informado';
+                    document.getElementById('nome-pai').textContent = data.pai || 'Não informado';
+                    document.getElementById('cpf').textContent = data.cpf || 'Não informado';
+                    document.getElementById('rg').textContent = data.rg || 'Não informado';
+                    document.getElementById('natural').textContent = data.naturalidade || 'Não informado';
+                    document.getElementById('uf').textContent = data.uf_natural || '--';
+                    document.getElementById('observacao').textContent = data.observacao || 'Nenhuma observação registrada.';
+
+                    // Formatação de data simples (YYYY-MM-DD para DD/MM/YYYY)
+                    if (data.data_nascimento) {
+                        const dataFormatada = new Date(data.data_nascimento).toLocaleDateString('pt-BR');
+                        document.getElementById('data-nascimento').textContent = dataFormatada;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    document.body.innerHTML += '<p style="color:red">Erro ao carregar dados do servidor.</p>';
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+/* GERAL */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    min-height: 100vh;
+    color: #ffffff;
+    text-align: center;
+}
+
+/* HEADER - LOGO E TITULO APROXIMADOS */
+.header {
+    padding-top: 20px;
+}
+
+.header img {
+    width: 120px; /* Tamanho ajustado para harmonia */
+    height: auto;
+    margin-bottom: 0px;
+}
+
+.title h1 {
+    margin: 0;
+    font-size: 20px;
+    letter-spacing: 2px;
+}
+
+.title h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+/* CONTAINER DE DESTAQUE (SUBTITULO E NOME) */
+.info-container {
+    background: rgba(255, 255, 255, 0.08);
+    margin: 20px 25px 10px; /* Margens laterais para não encostar na tela */
+    padding: 15px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.subtitle {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.nome-alvo {
+    margin: 0;
+    font-size: 15px;
+}
+
+.nome-alvo strong {
+    color: #ffd700; /* Amarelo ouro para destaque */
+}
+
+/* GRADE DE BOTOES */
+.buttons {
+    margin-top: 15px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px; /* Espaçamento padronizado horizontal e vertical */
+    padding: 0 25px 30px;
+}
+
+/* ESTILO BASE DO BOTAO */
+.button {
+    background: linear-gradient(145deg, #3a0ca3, #4361ee);
+    color: white;
+    height: 110px;
+    border-radius: 20px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.button i {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.button span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Efeito de clique */
+.button:active {
+    transform: scale(0.95);
+}
+
+/* BOTAO INFORMACOES (OCUPANDO O CENTRO) */
+.btn-full {
+    grid-column: span 2;      /* Ocupa as duas colunas do grid */
+    justify-self: center;     /* Centraliza no meio */
+    width: 50%;               /* Mesma largura visual dos botões de cima */
+    min-width: 150px;         /* Evita que fique muito estreito */
+}
+
+/* AJUSTE PARA TELAS MAIORES (TABLETS/PC) */
+@media (min-width: 768px) {
+    .buttons {
+        max-width: 450px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}

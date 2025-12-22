@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fotos do Alvo - Polícia Civil</title>
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        /* ÍCONE HOME SUPERIOR */
+        .home-icon {
+            position: absolute;
+            top: 25px;
+            left: 20px;
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .home-icon:hover {
+            color: #ffd700;
+        }
+
+        /* GALERIA DE FOTOS */
+        .photos {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+            padding-bottom: 40px;
+        }
+
+        .photo-box {
+            width: 260px;
+            height: 312px;
+            background-color: rgba(255, 255, 255, 0.05);
+            display: none; /* Só aparece se houver foto */
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* BOTÃO VOLTAR INFERIOR */
+        .btn-voltar {
+            margin: 20px auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" id="home-link" class="home-icon">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <div class="header">
+        <img src="images/logo.png" alt="Polícia Civil">
+    </div>
+
+    <div class="info-container">
+        <div class="subtitle">Galeria de Fotos</div>
+        <p class="nome-alvo">Alvo: <strong id="nome-alvo">Carregando...</strong></p>
+    </div>
+
+    <div class="photos" id="galeria-fotos">
+        <div class="photo-box">
+            <img id="img-foto1" alt="Foto 1">
+        </div>
+        <div class="photo-box">
+            <img id="img-foto2" alt="Foto 2">
+        </div>
+        <div class="photo-box">
+            <img id="img-foto3" alt="Foto 3">
+        </div>
+    </div>
+
+    <a href="index.html" id="link-voltar" class="btn-voltar">
+        <i class="fas fa-arrow-left"></i> Voltar ao Início
+    </a>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const idAlvo = params.get('id');
+
+        if (idAlvo) {
+            // Garante que ambos os links (home e voltar) mantenham o ID na URL
+            const urlIndex = `index.html?id=${idAlvo}`;
+            document.getElementById('link-voltar').href = urlIndex;
+            document.getElementById('home-link').href = urlIndex;
+
+            fetch(`http://localhost:3000/alvo/${idAlvo}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('nome-alvo').textContent = data.nome;
+
+                    exibirFoto('img-foto1', data.foto1);
+                    exibirFoto('img-foto2', data.foto2);
+                    exibirFoto('img-foto3', data.foto3);
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    document.getElementById('nome-alvo').textContent = "Erro de conexão";
+                });
+        }
+
+        function exibirFoto(imgId, base64String) {
+            const imgElement = document.getElementById(imgId);
+            const container = imgElement.parentElement;
+
+            if (base64String && base64String.length > 50) {
+                imgElement.src = `data:image/jpeg;base64,${base64String}`;
+                container.style.display = 'flex';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro e Inteligência - PC/RO</title>
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-masker/1.2.0/vanilla-masker.min.js"></script>
+
+    <style>
+        .form-container { max-width: 900px; margin: 0px auto; padding: 20px; }
+        .admin-menu { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; }
+        .admin-menu button { background: none; border: 1px solid #ffd700; color: #ffd700; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .admin-menu button:hover { background: #ffd700; color: #000; }
+        .section-card { background: white; color: #333; border-radius: 12px; padding: 25px; margin-bottom: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .section-title { font-size: 20px; font-weight: bold; color: #1a1a1a; border-bottom: 2px solid #ffd700; margin-bottom: 20px; padding-bottom: 5px; }
+        .photo-previews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .preview-img { width: 100%; max-width: 150px; height: 180px; background: #eee; border-radius: 8px; object-fit: cover; border: 2px dashed #ccc; display: block; margin: 0 auto 10px; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-weight: bold; font-size: 13px; color: #555; margin-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn-salvar { background: #27ae60; color: white; font-size: 20px; padding: 15px; width: 100%; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        
+        #modal-qr { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .search-box { background: white; padding: 25px; border-radius: 15px; width: 600px; max-width: 95%; color: #000; }
+        .result-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .result-actions { display: flex; gap: 8px; }
+        .btn-action { border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; color: white; }
+        .btn-edit { background: #3498db; }
+        .btn-delete { background: #e74c3c; }
+        .btn-qr { background: #f1c40f; color: #000; }
+
+        .swal2-container { z-index: 3000 !important; }
+    </style>
+</head>
+<body>
+
+    <div class="header" style="text-align: center; padding: 20px;">
+        <img src="images/logo.png" alt="Polícia Civil" style="max-height: 80px;">
+    </div>
+
+    <div class="form-container">
+        <div class="admin-menu">
+            <button onclick="resetarFormulario()"><i class="fas fa-plus"></i> Novo Cadastro</button>
+            <button onclick="abrirBuscaQR()"><i class="fas fa-qrcode"></i> Gerenciar Alvos</button>
+        </div>
+
+        <form id="form-alvo" data-modo="cadastro" data-id-edicao="">
+            <div class="section-card">
+                <div class="section-title">1. Identificação do Alvo</div>
+                <div class="photo-previews">
+                    <div class="photo-item">
+                        <img id="prev1" class="preview-img" src="">
+                        <input type="file" accept="image/*" onchange="previewFile(this, 'prev1')">
+                        <label>Foto 1 (Principal)</label>
+                    </div>
+                    <div class="photo-item">
+                        <img id="prev2" class="preview-img" src="">
+                        <input type="file" accept="image/*" onchange="previewFile(this, 'prev2')">
+                        <label>Foto 2</label>
+                    </div>
+                    <div class="photo-item">
+                        <img id="prev3" class="preview-img" src="">
+                        <input type="file" accept="image/*" onchange="previewFile(this, 'prev3')">
+                        <label>Foto 3</label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Nome Completo</label>
+                    <input type="text" name="nome" class="capitalize-name" required>
+                </div>
+                <div class="grid-2">
+                    <div class="input-group"><label>Mãe</label><input type="text" name="mae" class="capitalize-name"></div>
+                    <div class="input-group"><label>Pai</label><input type="text" name="pai" class="capitalize-name"></div>
+                </div>
+                <div class="grid-3">
+                    <div class="input-group"><label>Data de Nascimento</label><input type="date" name="data_nascimento"></div>
+                    <div class="input-group"><label>Natural</label><input type="text" name="naturalidade" class="capitalize-name"></div>
+                    <div class="input-group"><label>UF</label><input type="text" name="uf_natural" maxlength="2" style="text-transform: uppercase;"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="input-group"><label>CPF</label><input type="text" name="cpf" id="cpf"></div>
+                    <div class="input-group"><label>RG</label><input type="text" name="rg" id="rg"></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title">2. Endereço e Localização</div>
+                <div class="grid-2">
+                    <div class="input-group"><label>Rua</label><input type="text" name="rua" class="capitalize-name"></div>
+                    <div class="input-group"><label>Número</label><input type="text" name="numero"></div>
+                </div>
+                <div class="grid-3">
+                    <div class="input-group"><label>Bairro</label><input type="text" name="bairro" class="capitalize-name"></div>
+                    <div class="input-group"><label>Cidade</label><input type="text" name="cidade" class="capitalize-name"></div>
+                    <div class="input-group"><label>UF</label><input type="text" name="uf_endereco" maxlength="2" value="RO" style="text-transform: uppercase;"></div>
+                </div>
+                <div class="input-group">
+                    <label>Complemento / Ponto de Ref.</label>
+                    <input type="text" name="complemento">
+                </div>
+                <div class="input-group">
+                    <label>Observações Táticas</label>
+                    <textarea name="obs_tacticas" rows="2"></textarea>
+                </div>
+                <div class="input-group"><label>Link Mapa (URL Google Maps)</label><input type="text" name="link_mapa"></div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title">3. Inteligência Operacional</div>
+                <div class="input-group"><label>Envolvimento (Facção/Cargo)</label><input type="text" name="envolvimento_alvo"></div>
+                <div class="input-group"><label>Detalhes da Operação</label><textarea name="detalhes_operacao" rows="3"></textarea></div>
+                <div class="input-group">
+                    <label>Documentos (Anexar Mandado PDF)</label>
+                    <input type="file" id="pdf_file" accept="application/pdf">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-salvar" id="btn-principal">SALVAR CADASTRO</button>
+        </form>
+    </div>
+
+    <div id="modal-qr">
+        <div class="search-box">
+            <h3><i class="fas fa-search"></i> Gerenciar Alvos</h3>
+            <input type="text" id="input-busca" placeholder="Digite o nome para buscar..." autocomplete="off">
+            <div id="lista-resultados" style="max-height: 350px; overflow-y: auto; margin-top: 15px;"></div>
+            <button onclick="fecharModal()" style="width:100%; background:#7f8c8d; color:white; border:none; padding:12px; margin-top:15px; border-radius:8px; cursor:pointer;">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. IMPLEMENTAÇÃO RENDER: URL DINÂMICA
+        const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+            ? "http://localhost:3000" 
+            : "https://sua-api-no-render.onrender.com"; // <-- Substitua pela URL do seu Backend no Render
+
+        VMasker(document.getElementById("cpf")).maskPattern("999.999.999-99");
+        document.getElementById("rg").addEventListener('input', function() { this.value = this.value.toUpperCase(); });
+
+        function previewFile(input, imgId) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => { document.getElementById(imgId).src = reader.result; }
+            if (file) reader.readAsDataURL(file);
+        }
+
+        document.getElementById('input-busca').addEventListener('input', async function(e) {
+            const termo = e.target.value;
+            const lista = document.getElementById('lista-resultados');
+            if (termo.length < 2) { lista.innerHTML = ''; return; }
+
+            try {
+                const res = await fetch(`${API_URL}/buscar-alvos?nome=${termo}`);
+                const alvos = await res.json();
+                lista.innerHTML = alvos.map(alvo => `
+                    <div class="result-item">
+                        <div><strong>${alvo.nome}</strong><br><small>CPF: ${alvo.cpf || '---'}</small></div>
+                        <div class="result-actions">
+                            <button class="btn-action btn-edit" onclick="fecharModal(); carregarAlvo(${alvo.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-action btn-qr" onclick="fecharModal(); gerarQRCode(${alvo.id})">
+                                <i class="fas fa-qrcode"></i>
+                            </button>
+                            <button class="btn-action btn-delete" onclick="fecharModal(); deletarAlvo(${alvo.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) { console.error(err); }
+        });
+
+        async function carregarAlvo(id) {
+            try {
+                const res = await fetch(`${API_URL}/buscar-detalhes/${id}`);
+                const alvo = await res.json();
+                
+                const form = document.getElementById('form-alvo');
+                form.dataset.modo = 'edicao';
+                form.dataset.idEdicao = id;
+                document.getElementById('btn-principal').innerText = "ATUALIZAR CADASTRO";
+                document.getElementById('btn-principal').style.background = "#2980b9";
+
+                Object.keys(alvo).forEach(key => {
+                    const input = form.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        if (key === 'data_nascimento' && alvo[key]) {
+                            input.value = alvo[key].split('T')[0];
+                        } else {
+                            input.value = alvo[key];
+                        }
+                    }
+                });
+
+                if(alvo.foto1) document.getElementById('prev1').src = `data:image/jpeg;base64,${alvo.foto1}`;
+                if(alvo.foto2) document.getElementById('prev2').src = `data:image/jpeg;base64,${alvo.foto2}`;
+                if(alvo.foto3) document.getElementById('prev3').src = `data:image/jpeg;base64,${alvo.foto3}`;
+                
+                window.scrollTo(0, 0);
+                Swal.fire({ icon: 'info', title: 'Modo de Edição Ativado', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
+            } catch (err) { Swal.fire('Erro', 'Falha ao carregar dados do servidor.', 'error'); }
+        }
+
+        async function deletarAlvo(id) {
+            const result = await Swal.fire({
+                title: 'Excluir Alvo?',
+                text: "Esta ação removerá todos os dados permanentemente!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sim, deletar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`${API_URL}/deletar-alvo/${id}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if(data.success) {
+                        Swal.fire('Deletado!', 'O registro foi removido com sucesso.', 'success').then(() => {
+                            location.reload();
+                        });
+                    }
+                } catch (err) { Swal.fire('Erro', 'O servidor não respondeu.', 'error'); }
+            }
+        }
+
+        // 2. IMPLEMENTAÇÃO RENDER: QR CODE CAPTURA DOMÍNIO ATUAL
+        function gerarQRCode(id) {
+            // window.location.origin captura automaticamente se é localhost ou seu-site.onrender.com
+            const linkAcesso = `${window.location.origin}/index.html?id=${id}`;
+            
+            Swal.fire({
+                title: 'QR Code de Identificação',
+                html: `
+                    <div id="qr-result" style="display:flex; justify-content:center; margin-bottom:15px;"></div>
+                    <p style="font-size:11px; color:#666;">Link: ${linkAcesso}</p>
+                `,
+                confirmButtonText: '<i class="fas fa-download"></i> Baixar PNG',
+                showCancelButton: true,
+                cancelButtonText: 'Fechar',
+                didOpen: () => {
+                    new QRCode(document.getElementById("qr-result"), {
+                        text: linkAcesso,
+                        width: 200,
+                        height: 200,
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const canvas = document.querySelector('#qr-result canvas');
+                    if (canvas) {
+                        const link = document.createElement('a');
+                        link.download = `qrcode_alvo_${id}.png`;
+                        link.href = canvas.toDataURL("image/png");
+                        link.click();
+                        Swal.fire({ icon: 'success', title: 'Download iniciado', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
+                    }
+                }
+            });
+        }
+
+        document.getElementById('form-alvo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            Swal.fire({ title: 'Salvando no Banco...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            const form = e.target;
+            const payload = Object.fromEntries(new FormData(form).entries());
+            payload.modo = form.dataset.modo;
+            payload.idEdicao = form.dataset.idEdicao;
+
+            const getB64 = (id) => {
+                const src = document.getElementById(id).src;
+                return src && src.includes('base64') ? src.split(',')[1] : null;
+            };
+            payload.foto1 = getB64('prev1');
+            payload.foto2 = getB64('prev2');
+            payload.foto3 = getB64('prev3');
+
+            try {
+                const res = await fetch(`${API_URL}/cadastrar-alvo`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire('Sucesso!', data.message, 'success').then(() => location.reload());
+                }
+            } catch (err) { Swal.fire('Erro', 'Erro de conexão com o servidor.', 'error'); }
+        });
+
+        function resetarFormulario() { location.reload(); }
+        function abrirBuscaQR() { document.getElementById('modal-qr').style.display = 'flex'; }
+        function fecharModal() { document.getElementById('modal-qr').style.display = 'none'; }
+    </script>
+</body>
+</html>

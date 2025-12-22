@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informações Adicionais - Polícia Civil</title>
+    <link rel="stylesheet" href="css/style.css"> <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" /> <style>
+        .home-icon { position: absolute; top: 25px; left: 20px; font-size: 24px; color: rgba(255, 255, 255, 0.7); text-decoration: none; }
+        .info-box { margin: 20px; padding: 20px; background-color: white; color: black; border-radius: 10px; text-align: justify; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); } /* */
+        .section-title { font-weight: bold; color: #3a0ca3; text-transform: uppercase; font-size: 13px; margin-bottom: 5px; display: block; border-bottom: 1px solid #ddd; }
+        .content-text { margin-bottom: 20px; white-space: pre-wrap; display: block; }
+        
+        /* Botão para o PDF */
+        .btn-pdf { display: none; background: #d90429; color: white; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 20px; align-items: center; justify-content: center; gap: 10px; }
+        .btn-voltar { margin: 20px auto; display: inline-flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.1); color: white; padding: 12px 25px; border-radius: 30px; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" id="home-link" class="home-icon"><i class="fas fa-home"></i></a> <div class="header">
+        <img src="images/logo.png" alt="Polícia Civil"> </div>
+
+    <div class="info-container">
+        <div class="subtitle">Informações de Inteligência</div>
+        <p class="nome-alvo">Alvo: <strong id="header-nome">Carregando...</strong></p> </div>
+
+    <div class="info-box">
+        <span class="section-title">Envolvimento do Alvo</span>
+        <span id="envolvimento" class="content-text">Buscando...</span>
+
+        <span class="section-title">Detalhes da Operação</span>
+        <span id="detalhes" class="content-text">Buscando...</span>
+    </div>
+
+    <a href="#" id="btn-download-pdf" class="btn-pdf" download="Documento_Alvo.pdf">
+        <i class="fas fa-file-pdf"></i> Baixar Mandado / Documentação
+    </a>
+
+    <a href="index.html" id="link-voltar" class="btn-voltar">
+        <i class="fas fa-arrow-left"></i> Voltar ao Início
+    </a>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const idAlvo = params.get('id');
+
+        if (idAlvo) {
+            const urlIndex = `index.html?id=${idAlvo}`;
+            document.getElementById('link-voltar').href = urlIndex;
+            document.getElementById('home-link').href = urlIndex;
+
+            fetch(`http://localhost:3000/alvo/${idAlvo}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('header-nome').textContent = data.nome;
+                    document.getElementById('envolvimento').textContent = data.envolvimento_alvo || "Não registrado.";
+                    document.getElementById('detalhes').textContent = data.detalhes_operacao || "Sem observações complementares.";
+
+                    // Lógica para o PDF (se houver mandado_pdf_base64 no banco)
+                    if (data.mandado_pdf_base64) {
+                        const btnPdf = document.getElementById('btn-download-pdf');
+                        btnPdf.href = `data:application/pdf;base64,${data.mandado_pdf_base64}`;
+                        btnPdf.style.display = 'flex';
+                        if(data.nome_arquivo_pdf) btnPdf.download = data.nome_arquivo_pdf;
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
