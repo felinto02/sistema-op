@@ -65,12 +65,18 @@
   </div>
 
   <script>
-    // Captura o ID da URL principal (ex: index.html?id=1)
+    // 1. Detecta o ID do alvo na URL (ex: index.html?id=12)
     const params = new URLSearchParams(window.location.search);
     const idAlvo = params.get('id');
 
+    // 2. Lógica de URL Dinâmica: Detecta se está no PC ou no Render
+    // Se estiver no PC (localhost), usa a porta 3000. No Render, usa a URL do site.
+    const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+        ? "http://localhost:3000" 
+        : window.location.origin;
+
     if (idAlvo) {
-        // Atualiza todos os links dos botões para incluírem o ID do alvo
+        // 3. Repassa o ID para todos os botões do menu
         const sufixo = `?id=${idAlvo}`;
         document.getElementById('btn-fotos').href += sufixo;
         document.getElementById('btn-mapa').href += sufixo;
@@ -78,14 +84,19 @@
         document.getElementById('btn-endereco').href += sufixo;
         document.getElementById('btn-informacao').href += sufixo;
 
-        // Busca o nome do alvo para exibir no cabeçalho
-        fetch(`http://localhost:3000/alvo/${idAlvo}`)
-            .then(res => res.json())
+        // 4. Busca o nome do alvo usando a rota correta do seu server.js
+        // Importante: usei /buscar-detalhes/${idAlvo} conforme a rota no seu server.js
+        fetch(`${API_URL}/buscar-detalhes/${idAlvo}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Erro na resposta da rede');
+                return res.json();
+            })
             .then(data => {
+                // Preenche o nome no cabeçalho
                 document.getElementById('nome-alvo').textContent = data.nome || "Não encontrado";
             })
             .catch(err => {
-                console.error("Erro ao buscar nome:", err);
+                console.error("Erro ao buscar detalhes:", err);
                 document.getElementById('nome-alvo').textContent = "Erro de conexão";
             });
     } else {

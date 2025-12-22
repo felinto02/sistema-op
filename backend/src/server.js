@@ -10,18 +10,26 @@ const app = express();
 
 // --- CONFIGURAÇÕES DE MIDDLEWARE ---
 app.use(cors());
+// Aumentamos o limite para suportar o envio de fotos em Base64
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
 
+// --- SERVIR ARQUIVOS ESTÁTICOS (FRONTEND) ---
+// Isso faz com que o Render consiga ler a sua pasta frontend
+app.use(express.static(path.join(__dirname, '../../frontend')));
+
 // --- VERIFICAÇÃO DE CONEXÃO COM O BANCO ---
-// Isso aparecerá no terminal assim que você iniciar o servidor
 pool.query('SELECT NOW()', (err, res) => {
     if (err) {
         console.error('❌ ERRO AO CONECTAR NO BANCO DE DADOS:', err.message);
-        console.log('Verifique se as credenciais no seu arquivo .env estão corretas.');
     } else {
         console.log('🐘 BANCO DE DADOS CONECTADO COM SUCESSO EM:', res.rows[0].now);
     }
+});
+
+// --- ROTA PRINCIPAL: ABRE O SITE ---
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../frontend/index.html'));
 });
 
 // --- ROTA 1: CADASTRAR OU ATUALIZAR (HÍBRIDA) ---
@@ -34,7 +42,8 @@ app.post('/cadastrar-alvo', async (req, res) => {
         nome_arquivo_pdf,
         obs_tacticas,
         complemento,
-        pdf_base64 
+        pdf_base64,
+        foto1, foto2, foto3
     } = req.body;
 
     try {
@@ -60,14 +69,12 @@ app.post('/cadastrar-alvo', async (req, res) => {
                 [req.body.rua, req.body.numero, req.body.bairro, req.body.cidade, req.body.uf_endereco, req.body.link_mapa, complemento, obs_tacticas, idEdicao]
             );
 
-            if (req.body.foto1 || req.body.foto2 || req.body.foto3) {
-                await client.query(
-                    `UPDATE alvo_fotos SET 
-                        foto1=COALESCE($1, foto1), foto2=COALESCE($2, foto2), foto3=COALESCE($3, foto3) 
-                     WHERE alvo_id=$4`,
-                    [req.body.foto1, req.body.foto2, req.body.foto3, idEdicao]
-                );
-            }
+            await client.query(
+                `UPDATE alvo_fotos SET 
+                    foto1=COALESCE($1, foto1), foto2=COALESCE($2, foto2), foto3=COALESCE($3, foto3) 
+                 WHERE alvo_id=$4`,
+                [foto1, foto2, foto3, idEdicao]
+            );
 
             await client.query(
                 `UPDATE alvo_inteligencia SET 
@@ -95,7 +102,7 @@ app.post('/cadastrar-alvo', async (req, res) => {
 
             await client.query(
                 `INSERT INTO alvo_fotos (alvo_id, foto1, foto2, foto3) VALUES ($1, $2, $3, $4)`,
-                [alvoId, req.body.foto1, req.body.foto2, req.body.foto3]
+                [alvoId, foto1, foto2, foto3]
             );
 
             await client.query(
@@ -111,7 +118,7 @@ app.post('/cadastrar-alvo', async (req, res) => {
     } catch (err) {
         await client.query('ROLLBACK');
         console.error("ERRO NA TRANSAÇÃO:", err.message);
-        res.status(500).json({ success: false, message: "Erro interno no banco de dados." });
+        res.status(500).json({ success: false, message: "Erro interno no servidor." });
     } finally {
         client.release();
     }
@@ -138,15 +145,16 @@ app.get('/buscar-detalhes/:id', async (req, res) => {
             SELECT a.*, e.rua, e.numero, e.bairro, e.cidade, e.uf_endereco, e.link_mapa, 
                    e.ponto_referencia as complemento, e.observacoes_tacticas as obs_tacticas,
                    i.envolvimento_alvo, i.detalhes_operacao, i.nome_arquivo_pdf,
-                   f.foto1, f.foto2, f.foto3 -- ADICIONADO AS FOTOS AQUI
+                   f.foto1, f.foto2, f.foto3
             FROM alvos a
             LEFT JOIN alvo_enderecos e ON a.id = e.alvo_id
             LEFT JOIN alvo_inteligencia i ON a.id = i.alvo_id
-            LEFT JOIN alvo_fotos i ON a.id = f.alvo_id -- JOIN COM A TABELA DE FOTOS
+            LEFT JOIN alvo_fotos f ON a.id = f.alvo_id
             WHERE a.id = $1`;
         const result = await pool.query(query, [req.params.id]);
         res.json(result.rows[0]);
     } catch (err) {
+        console.error(err);
         res.status(500).json({ error: "Erro ao buscar detalhes" });
     }
 });
