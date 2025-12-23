@@ -5,12 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro e Inteligência - PC/RO</title>
     
-    <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-        rel="stylesheet"
-    />
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="css/style.css">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-masker/1.2.0/vanilla-masker.min.js"></script>
@@ -18,295 +15,329 @@
     <style>
         .form-container { max-width: 900px; margin: 0px auto; padding: 20px; }
         .admin-menu { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; }
-        .admin-menu button { background: none; border: 1px solid #ffd700; color: #ffd700; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .admin-menu button { background: none; border: 1px solid #ffd700; color: #ffd700; padding: 8px 15px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
         .admin-menu button:hover { background: #ffd700; color: #000; }
-        .section-card { background: white; color: #333; border-radius: 12px; padding: 25px; margin-bottom: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .section-title { font-size: 20px; font-weight: bold; color: #1a1a1a; border-bottom: 2px solid #ffd700; margin-bottom: 20px; padding-bottom: 5px; }
-        .photo-previews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .preview-img { width: 100%; max-width: 150px; height: 180px; background: #eee; border-radius: 8px; object-fit: cover; border: 2px dashed #ccc; display: block; margin: 0 auto 10px; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group label { display: block; font-weight: bold; font-size: 13px; color: #555; margin-bottom: 5px; }
-        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .btn-salvar { background: #27ae60; color: white; font-size: 20px; padding: 15px; width: 100%; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         
-        #modal-qr { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .search-box { background: white; padding: 25px; border-radius: 15px; width: 600px; max-width: 95%; color: #000; }
-        .result-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .result-actions { display: flex; gap: 8px; }
-        .btn-action { border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; color: white; }
-        .btn-edit { background: #3498db; }
-        .btn-delete { background: #e74c3c; }
-        .btn-qr { background: #f1c40f; color: #000; }
+        .section-card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
+        .section-title { color: #ffd700; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #ffd700; padding-bottom: 5px; display: flex; align-items: center; gap: 10px; }
+        
+        .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; text-align: left; }
+        .form-group label { font-size: 12px; margin-bottom: 5px; color: #ccc; text-transform: uppercase; }
+        .form-group input, .form-group textarea, .form-group select { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 5px; }
+        
+        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+        .photo-upload { position: relative; height: 150px; background: #222; border: 2px dashed #444; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .photo-upload img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-upload input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
 
-        .swal2-container { z-index: 3000 !important; }
+        .btn-salvar { background: #28a745; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 20px; width: 100%; }
+        
+        /* MODAL BUSCA */
+        #modal-qr { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <img src="images/logo.png" alt="Polícia Civil">
-    </div>
-
-    <div class="title">
-        <h1>RONDÔNIA</h1>
-        <h2>POLÍCIA CIVIL</h2>
+        <img src="images/logo.png" alt="PC/RO">
+        <h2 style="margin: 5px 0;">CADASTRO OPERACIONAL</h2>
     </div>
 
     <div class="form-container">
         <div class="admin-menu">
+            <button onclick="location.href='index.html'"><i class="fas fa-home"></i> Home</button>
+            <button onclick="abrirBuscaQR()"><i class="fas fa-search"></i> Buscar por QR</button>
             <button onclick="resetarFormulario()"><i class="fas fa-plus"></i> Novo Cadastro</button>
-            <button onclick="abrirBuscaQR()"><i class="fas fa-qrcode"></i> Gerenciar Alvos</button>
         </div>
 
-        <form id="form-alvo" data-modo="cadastro" data-id-edicao="">
+        <form id="formCadastro" data-modo="create">
             <div class="section-card">
-                <div class="section-title">1. Identificação do Alvo</div>
-                <div class="photo-previews">
-                    <div class="photo-item">
-                        <img id="prev1" class="preview-img" src="">
-                        <input type="file" accept="image/*" onchange="previewFile(this, 'prev1')">
-                        <label>Foto 1 (Principal)</label>
+                <div class="section-title"><i class="fas fa-user"></i> Qualificação do Alvo</div>
+                <div class="grid-form">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Nome Completo</label>
+                        <input type="text" name="nome" required placeholder="Ex: João da Silva">
                     </div>
-                    <div class="photo-item">
-                        <img id="prev2" class="preview-img" src="">
-                        <input type="file" accept="image/*" onchange="previewFile(this, 'prev2')">
-                        <label>Foto 2</label>
+                    <div class="form-group">
+                        <label>CPF</label>
+                        <input type="text" name="cpf" id="cpf" placeholder="000.000.000-00">
                     </div>
-                    <div class="photo-item">
-                        <img id="prev3" class="preview-img" src="">
-                        <input type="file" accept="image/*" onchange="previewFile(this, 'prev3')">
-                        <label>Foto 3</label>
+                    <div class="form-group">
+                        <label>RG</label>
+                        <input type="text" name="rg">
+                    </div>
+                    <div class="form-group">
+                        <label>Data Nascimento</label>
+                        <input type="date" name="data_nascimento">
+                    </div>
+                    <div class="form-group">
+                        <label>Naturalidade</label>
+                        <input type="text" name="naturalidade">
+                    </div>
+                    <div class="form-group">
+                        <label>UF</label>
+                        <input type="text" name="uf_natural" maxlength="2">
                     </div>
                 </div>
-
-                <div class="input-group">
-                    <label>Nome Completo</label>
-                    <input type="text" name="nome" required>
-                </div>
-                <div class="grid-2">
-                    <div class="input-group"><label>Mãe</label><input type="text" name="mae"></div>
-                    <div class="input-group"><label>Pai</label><input type="text" name="pai"></div>
-                </div>
-                <div class="grid-3">
-                    <div class="input-group"><label>Data de Nascimento</label><input type="date" name="data_nascimento"></div>
-                    <div class="input-group"><label>Natural</label><input type="text" name="naturalidade"></div>
-                    <div class="input-group"><label>UF</label><input type="text" name="uf_natural" maxlength="2" style="text-transform: uppercase;"></div>
-                </div>
-                <div class="grid-2">
-                    <div class="input-group"><label>CPF</label><input type="text" name="cpf" id="cpf"></div>
-                    <div class="input-group"><label>RG</label><input type="text" name="rg" id="rg"></div>
+                <div class="grid-form" style="margin-top: 15px;">
+                    <div class="form-group">
+                        <label>Nome da Mãe</label>
+                        <input type="text" name="mae">
+                    </div>
+                    <div class="form-group">
+                        <label>Nome do Pai</label>
+                        <input type="text" name="pai">
+                    </div>
                 </div>
             </div>
 
             <div class="section-card">
-                <div class="section-title">2. Endereço e Localização</div>
-                <div class="grid-2">
-                    <div class="input-group"><label>Rua</label><input type="text" name="rua"></div>
-                    <div class="input-group"><label>Número</label><input type="text" name="numero"></div>
+                <div class="section-title"><i class="fas fa-map-marker-alt"></i> Localização</div>
+                <div class="grid-form">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Rua/Logradouro</label>
+                        <input type="text" name="rua">
+                    </div>
+                    <div class="form-group">
+                        <label>Número</label>
+                        <input type="text" name="numero">
+                    </div>
+                    <div class="form-group">
+                        <label>Bairro</label>
+                        <input type="text" name="bairro">
+                    </div>
+                    <div class="form-group">
+                        <label>Cidade</label>
+                        <input type="text" name="cidade">
+                    </div>
+                    <div class="form-group">
+                        <label>UF</label>
+                        <input type="text" name="uf_endereco" maxlength="2">
+                    </div>
                 </div>
-                <div class="grid-3">
-                    <div class="input-group"><label>Bairro</label><input type="text" name="bairro"></div>
-                    <div class="input-group"><label>Cidade</label><input type="text" name="cidade"></div>
-                    <div class="input-group"><label>UF</label><input type="text" name="uf_endereco" maxlength="2" value="RO" style="text-transform: uppercase;"></div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Ponto de Referência / Complemento</label>
+                    <input type="text" name="ponto_referencia">
                 </div>
-                <div class="input-group">
-                    <label>Complemento / Ponto de Ref.</label>
-                    <input type="text" name="complemento">
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Observações Táticas de Local</label>
+                    <textarea name="observacoes_tacticas" rows="2"></textarea>
                 </div>
-                <div class="input-group">
-                    <label>Observações Táticas</label>
-                    <textarea name="obs_tacticas" rows="2"></textarea>
-                </div>
-                <div class="input-group"><label>Link Mapa (URL Google Maps)</label><input type="text" name="link_mapa"></div>
             </div>
 
             <div class="section-card">
-                <div class="section-title">3. Inteligência Operacional</div>
-                <div class="input-group"><label>Envolvimento (Facção/Cargo)</label><input type="text" name="envolvimento_alvo"></div>
-                <div class="input-group"><label>Detalhes da Operação</label><textarea name="detalhes_operacao" rows="3"></textarea></div>
-                <div class="input-group">
-                    <label>Documentos (Anexar Mandado PDF)</label>
-                    <input type="file" id="pdf_file" accept="application/pdf">
+                <div class="section-title"><i class="fas fa-brain"></i> Inteligência e Operações</div>
+                <div class="form-group">
+                    <label>Envolvimento Criminal / Histórico</label>
+                    <textarea name="envolvimento_alvo" rows="3"></textarea>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Detalhes da Operação / Mandado</label>
+                    <textarea name="detalhes_operacao" rows="3"></textarea>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Upload de Mandado (PDF)</label>
+                    <input type="file" id="pdfMandado" accept="application/pdf">
+                    <input type="hidden" name="mandado_pdf_base64" id="pdfBase64">
+                    <input type="hidden" name="nome_arquivo_pdf" id="pdfNome">
                 </div>
             </div>
 
-            <button type="submit" class="btn-salvar" id="btn-principal">SALVAR CADASTRO</button>
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-camera"></i> Galeria de Fotos</div>
+                <div class="photo-grid">
+                    <div class="photo-upload">
+                        <i class="fas fa-plus"></i>
+                        <input type="file" accept="image/*" onchange="previewImg(this, 'prev1')">
+                        <img id="prev1">
+                    </div>
+                    <div class="photo-upload">
+                        <i class="fas fa-plus"></i>
+                        <input type="file" accept="image/*" onchange="previewImg(this, 'prev2')">
+                        <img id="prev2">
+                    </div>
+                    <div class="photo-upload">
+                        <i class="fas fa-plus"></i>
+                        <input type="file" accept="image/*" onchange="previewImg(this, 'prev3')">
+                        <img id="prev3">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-salvar" id="btnAcao">SALVAR REGISTRO OPERACIONAL</button>
         </form>
     </div>
 
     <div id="modal-qr">
-        <div class="search-box">
-            <h3><i class="fas fa-search"></i> Gerenciar Alvos</h3>
-            <input type="text" id="input-busca" placeholder="Digite o nome para buscar..." autocomplete="off">
-            <div id="lista-resultados" style="max-height: 350px; overflow-y: auto; margin-top: 15px;"></div>
-            <button onclick="fecharModal()" style="width:100%; background:#7f8c8d; color:white; border:none; padding:12px; margin-top:15px; border-radius:8px; cursor:pointer;">Fechar</button>
+        <h2 style="color: #ffd700;">Buscar Alvo por ID</h2>
+        <input type="number" id="inputBuscaId" style="padding: 15px; font-size: 20px; width: 200px; text-align: center; border-radius: 10px; border: none;">
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button onclick="buscarPorId()" style="background: #28a745; color: white; padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer;">BUSCAR</button>
+            <button onclick="document.getElementById('modal-qr').style.display='none'" style="background: #dc3545; color: white; padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer;">CANCELAR</button>
         </div>
     </div>
 
     <script>
-        // IMPLEMENTAÇÃO RENDER: URL DINÂMICA (NÃO PRECISA MAIS SUBSTITUIR MANUALMENTE)
+        // CONFIGURAÇÃO DA API
         const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
             ? "http://localhost:3000" 
             : window.location.origin;
 
+        // MÁSCARAS
         VMasker(document.getElementById("cpf")).maskPattern("999.999.999-99");
-        document.getElementById("rg").addEventListener('input', function() { this.value = this.value.toUpperCase(); });
 
-        function previewFile(input, imgId) {
-            const file = input.files[0];
-            if (file) {
+        // FUNÇÕES DE FORMATAÇÃO DE TEXTO
+        function formatarNome(texto) {
+            if (!texto) return '';
+            const preposicoes = ['de', 'do', 'da', 'dos', 'das', 'e'];
+            return texto.toLowerCase().trim().split(/\s+/).map(palavra => {
+                if (preposicoes.includes(palavra)) return palavra;
+                return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+            }).join(' ');
+        }
+
+        function formatarFrase(texto) {
+            if (!texto) return '';
+            const limpo = texto.trim().toLowerCase();
+            return limpo.charAt(0).toUpperCase() + limpo.slice(1);
+        }
+
+        // PREVIEW DE IMAGENS
+        function previewImg(input, imgId) {
+            if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onloadend = () => { document.getElementById(imgId).src = reader.result; }
+                reader.onload = (e) => {
+                    const img = document.getElementById(imgId);
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // CONVERSÃO DE PDF
+        document.getElementById('pdfMandado').onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('pdfNome').value = file.name;
+                const reader = new FileReader();
+                reader.onload = function() {
+                    document.getElementById('pdfBase64').value = reader.result.split(',')[1];
+                };
                 reader.readAsDataURL(file);
             }
-        }
+        };
 
-        document.getElementById('input-busca').addEventListener('input', async function(e) {
-            const termo = e.target.value;
-            const lista = document.getElementById('lista-resultados');
-            if (termo.length < 2) { lista.innerHTML = ''; return; }
-
-            try {
-                const res = await fetch(`${API_URL}/buscar-alvos?nome=${termo}`);
-                const alvos = await res.json();
-                lista.innerHTML = alvos.map(alvo => `
-                    <div class="result-item">
-                        <div><strong>${alvo.nome}</strong><br><small>CPF: ${alvo.cpf || '---'}</small></div>
-                        <div class="result-actions">
-                            <button class="btn-action btn-edit" onclick="fecharModal(); carregarAlvo(${alvo.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-action btn-qr" onclick="fecharModal(); gerarQRCode(${alvo.id})">
-                                <i class="fas fa-qrcode"></i>
-                            </button>
-                            <button class="btn-action btn-delete" onclick="fecharModal(); deletarAlvo(${alvo.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (err) { console.error(err); }
-        });
-
-        async function carregarAlvo(id) {
-            try {
-                const res = await fetch(`${API_URL}/buscar-detalhes/${id}`);
-                const alvo = await res.json();
-                
-                const form = document.getElementById('form-alvo');
-                form.dataset.modo = 'edicao';
-                form.dataset.idEdicao = id;
-                document.getElementById('btn-principal').innerText = "ATUALIZAR CADASTRO";
-                document.getElementById('btn-principal').style.background = "#2980b9";
-
-                Object.keys(alvo).forEach(key => {
-                    const input = form.querySelector(`[name="${key}"]`);
-                    if (input) {
-                        if (key === 'data_nascimento' && alvo[key]) {
-                            input.value = alvo[key].split('T')[0];
-                        } else {
-                            input.value = alvo[key];
-                        }
-                    }
-                });
-
-                if(alvo.foto1) document.getElementById('prev1').src = `data:image/jpeg;base64,${alvo.foto1}`;
-                if(alvo.foto2) document.getElementById('prev2').src = `data:image/jpeg;base64,${alvo.foto2}`;
-                if(alvo.foto3) document.getElementById('prev3').src = `data:image/jpeg;base64,${alvo.foto3}`;
-                
-                window.scrollTo(0, 0);
-                Swal.fire({ icon: 'info', title: 'Modo de Edição Ativado', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
-            } catch (err) { Swal.fire('Erro', 'Falha ao carregar dados.', 'error'); }
-        }
-
-        async function deletarAlvo(id) {
-            const result = await Swal.fire({
-                title: 'Excluir Alvo?',
-                text: "Esta ação removerá todos os dados permanentemente!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Sim, deletar',
-                cancelButtonText: 'Cancelar'
-            });
-
-            if (result.isConfirmed) {
-                try {
-                    const res = await fetch(`${API_URL}/deletar-alvo/${id}`, { method: 'DELETE' });
-                    const data = await res.json();
-                    if(data.success) {
-                        Swal.fire('Deletado!', 'Registro removido.', 'success').then(() => location.reload());
-                    }
-                } catch (err) { Swal.fire('Erro', 'Falha ao deletar.', 'error'); }
-            }
-        }
-
-        function gerarQRCode(id) {
-            const linkAcesso = `${window.location.origin}/index.html?id=${id}`;
-            
-            Swal.fire({
-                title: 'QR Code de Identificação',
-                html: `
-                    <div id="qr-result" style="display:flex; justify-content:center; margin-bottom:15px;"></div>
-                    <p style="font-size:11px; color:#666;">Link: ${linkAcesso}</p>
-                `,
-                confirmButtonText: '<i class="fas fa-download"></i> Baixar PNG',
-                showCancelButton: true,
-                didOpen: () => {
-                    new QRCode(document.getElementById("qr-result"), {
-                        text: linkAcesso,
-                        width: 200,
-                        height: 200
-                    });
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const canvas = document.querySelector('#qr-result canvas');
-                    if (canvas) {
-                        const link = document.createElement('a');
-                        link.download = `qrcode_${id}.png`;
-                        link.href = canvas.toDataURL("image/png");
-                        link.click();
-                    }
-                }
-            });
-        }
-
-        document.getElementById('form-alvo').addEventListener('submit', async (e) => {
+        // SUBMIT DO FORMULÁRIO
+        document.getElementById('formCadastro').onsubmit = async (e) => {
             e.preventDefault();
-            Swal.fire({ title: 'Salvando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            Swal.fire({ title: 'Processando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             const form = e.target;
-            const payload = Object.fromEntries(new FormData(form).entries());
-            payload.modo = form.dataset.modo;
-            payload.idEdicao = form.dataset.idEdicao;
+            const formData = new FormData(form);
+            
+            // Dados brutos em objeto
+            const rawData = Object.fromEntries(formData.entries());
 
+            // --- APLICANDO REGRAS DE CAPITALIZAÇÃO SOLICITADAS ---
+            // Nomes: Iniciais maiúsculas exceto preposições
+            rawData.nome = formatarNome(rawData.nome);
+            rawData.mae = formatarNome(rawData.mae);
+            rawData.pai = formatarNome(rawData.pai);
+            rawData.naturalidade = formatarNome(rawData.naturalidade);
+            rawData.rua = formatarNome(rawData.rua);
+            rawData.bairro = formatarNome(rawData.bairro);
+            rawData.cidade = formatarNome(rawData.cidade);
+
+            // Observações: Apenas primeira letra da frase maiúscula
+            rawData.ponto_referencia = formatarFrase(rawData.ponto_referencia);
+            rawData.observacoes_tacticas = formatarFrase(rawData.observacoes_tacticas);
+            rawData.envolvimento_alvo = formatarFrase(rawData.envolvimento_alvo);
+            rawData.detalhes_operacao = formatarFrase(rawData.detalhes_operacao);
+
+            // Metadados
+            rawData.modo = form.dataset.modo;
+            rawData.idEdicao = form.dataset.idEdicao;
+
+            // Coleta de Fotos Base64
             const getB64 = (id) => {
                 const src = document.getElementById(id).src;
                 return src && src.includes('base64') ? src.split(',')[1] : null;
             };
-            payload.foto1 = getB64('prev1');
-            payload.foto2 = getB64('prev2');
-            payload.foto3 = getB64('prev3');
+            rawData.foto1 = getB64('prev1');
+            rawData.foto2 = getB64('prev2');
+            rawData.foto3 = getB64('prev3');
 
             try {
                 const res = await fetch(`${API_URL}/cadastrar-alvo`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(rawData)
                 });
                 const data = await res.json();
+                
                 if (data.success) {
-                    Swal.fire('Sucesso!', data.message, 'success').then(() => location.reload());
+                    Swal.fire({
+                        title: 'Sucesso!',
+                        text: data.message + (data.id ? ` (ID: ${data.id})` : ''),
+                        icon: 'success'
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire('Erro', data.error || 'Erro ao salvar', 'error');
                 }
-            } catch (err) { Swal.fire('Erro', 'Erro de conexão.', 'error'); }
-        });
+            } catch (err) {
+                Swal.fire('Erro', 'Falha na conexão com servidor.', 'error');
+            }
+        };
 
         function resetarFormulario() { location.reload(); }
         function abrirBuscaQR() { document.getElementById('modal-qr').style.display = 'flex'; }
-        function fecharModal() { document.getElementById('modal-qr').style.display = 'none'; }
+
+        async function buscarPorId() {
+            const id = document.getElementById('inputBuscaId').value;
+            if(!id) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/buscar-detalhes/${id}`);
+                const data = await res.json();
+                
+                if(data && data.id) {
+                    const form = document.getElementById('formCadastro');
+                    form.dataset.modo = 'update';
+                    form.dataset.idEdicao = data.id;
+                    document.getElementById('btnAcao').textContent = "ATUALIZAR REGISTRO ID: " + data.id;
+                    document.getElementById('btnAcao').style.background = "#ff8c00";
+                    
+                    // Preenchimento automático dos campos
+                    Object.keys(data).forEach(key => {
+                        const input = form.querySelector(`[name="${key}"]`);
+                        if(input && key !== 'data_nascimento') input.value = data[key];
+                    });
+
+                    if(data.data_nascimento) {
+                        form.querySelector('[name="data_nascimento"]').value = data.data_nascimento.split('T')[0];
+                    }
+
+                    // Preencher fotos
+                    if(data.foto1) document.getElementById('prev1').src = 'data:image/jpeg;base64,' + data.foto1;
+                    if(data.foto2) document.getElementById('prev2').src = 'data:image/jpeg;base64,' + data.foto2;
+                    if(data.foto3) document.getElementById('prev3').src = 'data:image/jpeg;base64,' + data.foto3;
+                    
+                    document.querySelectorAll('.photo-upload img').forEach(img => {
+                        if(img.src) img.style.display = 'block';
+                    });
+
+                    document.getElementById('modal-qr').style.display = 'none';
+                    Swal.fire('Modo Edição', 'Dados carregados com sucesso.', 'info');
+                } else {
+                    Swal.fire('Aviso', 'Alvo não encontrado.', 'warning');
+                }
+            } catch (err) {
+                Swal.fire('Erro', 'Erro ao buscar dados.', 'error');
+            }
+        }
     </script>
 </body>
 </html>

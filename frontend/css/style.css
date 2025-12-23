@@ -67,6 +67,16 @@ body {
     padding: 0 25px 30px;
 }
 
+/* Força visualmente maiúsculas apenas nas iniciais (não altera o valor do banco) */
+.input-nome {
+    text-transform: capitalize;
+}
+
+/* Garante que preposições não fiquem estranhas visualmente */
+.input-nome:focus {
+    text-transform: none; 
+}
+
 /* ESTILO BASE DO BOTAO */
 .button {
     background: linear-gradient(145deg, #3a0ca3, #4361ee);
