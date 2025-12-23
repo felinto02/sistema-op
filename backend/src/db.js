@@ -1,13 +1,20 @@
 const { Pool } = require('pg');
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
+// O Render preenche a variável DATABASE_URL automaticamente se configurada no Environment
 const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_DATABASE,
-    password: String(process.env.DB_PASSWORD || ''), // Garante que nunca seja undefined
-    port: process.env.DB_PORT || 5432,
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false // Obrigatório para conexões seguras no Render
+    }
+});
+
+// Teste de conexão imediato para ajudar nos logs
+pool.connect((err, client, release) => {
+    if (err) {
+        return console.error('❌ ERRO AO CONECTAR NO BANCO DE DADOS:', err.stack);
+    }
+    console.log('🐘 BANCO DE DADOS CONECTADO COM SUCESSO');
+    release();
 });
 
 module.exports = pool;
