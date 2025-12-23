@@ -4,41 +4,284 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informações Adicionais - Polícia Civil</title>
-    <link rel="stylesheet" href="css/style.css"> <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" /> <style>
-        .home-icon { position: absolute; top: 25px; left: 20px; font-size: 24px; color: rgba(255, 255, 255, 0.7); text-decoration: none; }
-        .info-box { margin: 20px; padding: 20px; background-color: white; color: black; border-radius: 10px; text-align: justify; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); } /* */
-        .section-title { font-weight: bold; color: #3a0ca3; text-transform: uppercase; font-size: 13px; margin-bottom: 5px; display: block; border-bottom: 1px solid #ddd; }
-        .content-text { margin-bottom: 20px; white-space: pre-wrap; display: block; }
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <style>
+        .home-icon { 
+            position: absolute; 
+            top: 25px; 
+            left: 20px; 
+            font-size: 24px; 
+            color: rgba(255, 255, 255, 0.7); 
+            text-decoration: none; 
+            z-index: 100;
+        }
         
-        /* Botão para o PDF */
-        .btn-pdf { display: none; background: #d90429; color: white; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 20px; align-items: center; justify-content: center; gap: 10px; }
-        .btn-voltar { margin: 20px auto; display: inline-flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.1); color: white; padding: 12px 25px; border-radius: 30px; text-decoration: none; font-weight: bold; }
+        .info-box { 
+            margin: 20px; 
+            padding: 20px; 
+            background-color: white; 
+            color: black; 
+            border-radius: 10px; 
+            text-align: justify; 
+            font-size: 16px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+        }
+        
+        .section-title { 
+            font-weight: bold; 
+            color: #3a0ca3; 
+            text-transform: uppercase; 
+            font-size: 13px; 
+            margin-bottom: 5px; 
+            margin-top: 15px;
+            display: block; 
+            border-bottom: 1px solid #ddd; 
+            padding-bottom: 5px;
+        }
+        
+        .content-text { 
+            margin-bottom: 20px; 
+            white-space: pre-wrap; 
+            display: block; 
+            line-height: 1.6;
+        }
+        
+        /* Container de Documentos */
+        .docs-container {
+            margin: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        .docs-title {
+            font-weight: bold;
+            color: #3a0ca3;
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 2px solid #ffd700;
+            padding-bottom: 10px;
+        }
+        
+        .doc-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: white;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+        
+        .doc-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .doc-icon {
+            font-size: 32px;
+            color: #ffd700;
+        }
+        
+        .doc-info h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .doc-info p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .doc-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-doc {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        
+        .btn-doc:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-download {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-view {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-share {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .no-docs {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            font-style: italic;
+        }
+        
+        .btn-voltar { 
+            margin: 20px auto; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 10px; 
+            background: rgba(255, 255, 255, 0.1); 
+            color: white; 
+            padding: 12px 25px; 
+            border-radius: 30px; 
+            text-decoration: none; 
+            font-weight: bold; 
+        }
+        
+        /* Modal para visualizar PDF */
+        .modal-pdf {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            width: 95%;
+            height: 95%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .modal-header {
+            background: #3a0ca3;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn-close-modal {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .pdf-viewer {
+            width: 100%;
+            height: calc(100% - 60px);
+            border: none;
+        }
+        
+        /* Toast de compartilhamento */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10000;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { bottom: -100px; }
+            to { bottom: 20px; }
+        }
     </style>
 </head>
 <body>
 
-    <a href="index.html" id="home-link" class="home-icon"><i class="fas fa-home"></i></a> <div class="header">
-        <img src="images/logo.png" alt="Polícia Civil"> </div>
+    <a href="index.html" id="home-link" class="home-icon"><i class="fas fa-home"></i></a>
+    
+    <div class="header">
+        <img src="images/logo.png" alt="Polícia Civil">
+    </div>
+
+    <div class="title">
+        <h1>RONDÔNIA</h1>
+        <h2>POLÍCIA CIVIL</h2>
+    </div>
 
     <div class="info-container">
         <div class="subtitle">Informações de Inteligência</div>
-        <p class="nome-alvo">Alvo: <strong id="header-nome">Carregando...</strong></p> </div>
+        <p class="nome-alvo">Alvo: <strong id="header-nome">Carregando...</strong></p>
+    </div>
 
     <div class="info-box">
-        <span class="section-title">Envolvimento do Alvo</span>
+        <span class="section-title"><i class="fas fa-user-secret"></i> Envolvimento do Alvo</span>
         <span id="envolvimento" class="content-text">Buscando...</span>
 
-        <span class="section-title">Detalhes da Operação</span>
+        <span class="section-title"><i class="fas fa-clipboard-list"></i> Detalhes da Operação</span>
         <span id="detalhes" class="content-text">Buscando...</span>
     </div>
 
-    <a href="#" id="btn-download-pdf" class="btn-pdf" download="Documento_Alvo.pdf">
-        <i class="fas fa-file-pdf"></i> Baixar Mandado / Documentação
-    </a>
+    <!-- Container de Documentos -->
+    <div class="docs-container" id="docs-container" style="display:none;">
+        <div class="docs-title"><i class="fas fa-folder-open"></i> Documentação Anexa</div>
+        <div id="docs-list"></div>
+    </div>
 
     <a href="index.html" id="link-voltar" class="btn-voltar">
         <i class="fas fa-arrow-left"></i> Voltar ao Início
     </a>
+
+    <!-- Modal para visualizar PDF -->
+    <div class="modal-pdf" id="modal-pdf">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title"><i class="fas fa-file-pdf"></i> Visualizando Documento</h3>
+                <button class="btn-close-modal" onclick="fecharModal()">
+                    <i class="fas fa-times"></i> Fechar
+                </button>
+            </div>
+            <iframe class="pdf-viewer" id="pdf-viewer"></iframe>
+        </div>
+    </div>
+
+    <!-- Toast de notificação -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i> Link copiado com sucesso!
+    </div>
 
     <script>
         const params = new URLSearchParams(window.location.search);
@@ -61,15 +304,125 @@
                     document.getElementById('envolvimento').textContent = data.envolvimento_alvo || "Não registrado.";
                     document.getElementById('detalhes').textContent = data.detalhes_operacao || "Sem observações complementares.";
 
-                    // Lógica para o PDF (se houver mandado_pdf_base64 no banco)
+                    // Exibe documentos se houver
                     if (data.mandado_pdf_base64) {
-                        const btnPdf = document.getElementById('btn-download-pdf');
-                        btnPdf.href = `data:application/pdf;base64,${data.mandado_pdf_base64}`;
-                        btnPdf.style.display = 'flex';
-                        if(data.nome_arquivo_pdf) btnPdf.download = data.nome_arquivo_pdf;
+                        exibirDocumentos(data);
                     }
+                })
+                .catch(err => {
+                    console.error("Erro ao carregar dados:", err);
+                    document.getElementById('header-nome').textContent = "Erro ao carregar";
+                    document.getElementById('envolvimento').textContent = "Erro de conexão";
+                    document.getElementById('detalhes').textContent = "Erro de conexão";
                 });
         }
+
+        function exibirDocumentos(data) {
+            const container = document.getElementById('docs-container');
+            const docsList = document.getElementById('docs-list');
+            
+            container.style.display = 'block';
+            
+            const nomeArquivo = data.nome_arquivo_pdf || 'Mandado_Judicial.pdf';
+            const pdfBase64 = data.mandado_pdf_base64;
+            const pdfDataUri = `data:application/pdf;base64,${pdfBase64}`;
+            
+            docsList.innerHTML = `
+                <div class="doc-item">
+                    <div class="doc-header">
+                        <i class="fas fa-file-pdf doc-icon"></i>
+                        <div class="doc-info">
+                            <h4>${nomeArquivo}</h4>
+                            <p>Documento oficial anexado ao registro</p>
+                        </div>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn-doc btn-view" onclick="visualizarPDF('${pdfDataUri}', '${nomeArquivo}')">
+                            <i class="fas fa-eye"></i> Visualizar
+                        </button>
+                        <a class="btn-doc btn-download" href="${pdfDataUri}" download="${nomeArquivo}">
+                            <i class="fas fa-download"></i> Baixar
+                        </a>
+                        <button class="btn-doc btn-share" onclick="compartilharDocumento('${nomeArquivo}')">
+                            <i class="fas fa-share-alt"></i> Compartilhar
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function visualizarPDF(pdfDataUri, nomeArquivo) {
+            const modal = document.getElementById('modal-pdf');
+            const viewer = document.getElementById('pdf-viewer');
+            const title = document.getElementById('modal-title');
+            
+            title.innerHTML = `<i class="fas fa-file-pdf"></i> ${nomeArquivo}`;
+            viewer.src = pdfDataUri;
+            modal.style.display = 'flex';
+        }
+
+        function fecharModal() {
+            const modal = document.getElementById('modal-pdf');
+            const viewer = document.getElementById('pdf-viewer');
+            modal.style.display = 'none';
+            viewer.src = '';
+        }
+
+        function compartilharDocumento(nomeArquivo) {
+            const linkCompartilhamento = `${window.location.origin}/informacao.html?id=${idAlvo}`;
+            
+            // Tenta usar a API nativa de compartilhamento (mobile)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Documento - Polícia Civil/RO',
+                    text: `Acesso ao documento: ${nomeArquivo}`,
+                    url: linkCompartilhamento
+                }).then(() => {
+                    mostrarToast('Compartilhado com sucesso!');
+                }).catch(err => {
+                    // Se cancelar, não faz nada
+                    if (err.name !== 'AbortError') {
+                        copiarLink(linkCompartilhamento);
+                    }
+                });
+            } else {
+                // Fallback: copia o link
+                copiarLink(linkCompartilhamento);
+            }
+        }
+
+        function copiarLink(link) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(link).then(() => {
+                    mostrarToast('Link copiado para a área de transferência!');
+                });
+            } else {
+                // Fallback antigo
+                const input = document.createElement('input');
+                input.value = link;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                mostrarToast('Link copiado para a área de transferência!');
+            }
+        }
+
+        function mostrarToast(mensagem) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = `<i class="fas fa-check-circle"></i> ${mensagem}`;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Fechar modal ao clicar fora
+        document.getElementById('modal-pdf').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharModal();
+            }
+        });
     </script>
 </body>
 </html>
