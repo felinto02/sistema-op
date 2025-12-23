@@ -79,10 +79,15 @@
             const urlIndex = `index.html?id=${idAlvo}`;
             document.getElementById('home-link').href = urlIndex;
 
-            fetch(`http://localhost:3000/alvo/${idAlvo}`)
+            // Detecta automaticamente se está no Render ou Local
+            const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                ? "http://localhost:3000" 
+                : window.location.origin;
+
+            fetch(`${API_URL}/buscar-detalhes/${idAlvo}`)
                 .then(res => res.json())
                 .then(data => {
-                    const endereco = `${data.logradouro}, ${data.numero}, ${data.bairro}, ${data.cidade} - ${data.uf}`;
+                    const endereco = `${data.rua}, ${data.numero}, ${data.bairro}, ${data.cidade} - ${data.uf_endereco}`;
                     
                     document.getElementById('nome-exibicao').textContent = data.nome;
                     document.getElementById('txt-endereco').textContent = endereco;

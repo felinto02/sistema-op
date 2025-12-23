@@ -158,8 +158,12 @@
             document.getElementById('link-voltar').href = urlIndex;
             document.getElementById('home-link').href = urlIndex;
 
-            // Busca os dados da tabela alvos e alvo_enderecos
-            fetch(`http://localhost:3000/alvo/${idAlvo}`)
+            // Detecta automaticamente se está no Render ou Local
+            const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                ? "http://localhost:3000" 
+                : window.location.origin;
+
+            fetch(`${API_URL}/buscar-detalhes/${idAlvo}`)
                 .then(res => res.json())
                 .then(data => {
                     document.getElementById('header-nome').textContent = data.nome;
