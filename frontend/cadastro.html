@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -118,7 +117,7 @@
         .modal-content-gerenciar { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 30px; border-radius: 15px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; border: 2px solid #ffd700; }
         .modal-header-gerenciar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #ffd700; }
         .modal-header-gerenciar h2 { margin: 0; color: #ffd700; }
-        .search-input { width: 94%; padding: 12px; border: 2px solid #ffd700; border-radius: 8px; font-size: 16px; margin-bottom: 20px; background: #1a1a1a; color: white; }
+        .search-input { width: 100%; padding: 12px; border: 2px solid #ffd700; border-radius: 8px; font-size: 16px; margin-bottom: 20px; background: #1a1a1a; color: white; }
         .result-item { padding: 15px; border-bottom: 1px solid rgba(255,215,0,0.2); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); margin-bottom: 10px; border-radius: 8px; }
         .result-info strong { color: #ffd700; font-size: 16px; }
         .result-info small { color: #ccc; display: block; margin-top: 5px; }
@@ -134,6 +133,34 @@
         .modal-content-gerenciar::-webkit-scrollbar { width: 10px; }
         .modal-content-gerenciar::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 10px; }
         .modal-content-gerenciar::-webkit-scrollbar-thumb { background: #ffd700; border-radius: 10px; }
+
+        /* Estilos personalizados para o modal QR Code */
+        .swal2-actions {
+            display: flex !important;
+            gap: 10px !important;
+            width: 100% !important;
+            justify-content: center !important;
+        }
+        
+        .btn-download-qr {
+            background: linear-gradient(135deg, #27ae60, #229954) !important;
+            color: white !important;
+            padding: 12px 25px !important;
+            border-radius: 8px !important;
+            font-weight: bold !important;
+            border: none !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            transition: all 0.3s !important;
+        }
+        
+        .btn-download-qr:hover {
+            background: linear-gradient(135deg, #229954, #1e8449) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4) !important;
+        }
     </style>
 </head>
 <body>
@@ -406,18 +433,14 @@
         function limparFormulario() {
             const form = document.getElementById('formCadastro');
             
-            // Reseta modo para criação
             form.dataset.modo = 'create';
             delete form.dataset.idEdicao;
             
-            // Reseta botão
             document.getElementById('btnAcao').innerHTML = '<i class="fas fa-save"></i> SALVAR REGISTRO OPERACIONAL';
             document.getElementById('btnAcao').style.background = "linear-gradient(135deg, #28a745, #20c997)";
             
-            // Limpa todos os campos
             form.reset();
             
-            // Limpa imagens
             ['prev1', 'prev2', 'prev3'].forEach((id, index) => {
                 const img = document.getElementById(id);
                 const container = img.parentElement;
@@ -425,22 +448,19 @@
                 img.style.display = 'none';
                 container.classList.remove('has-image');
                 
-                // Limpa input file
                 const fileInput = container.querySelector('input[type="file"]');
                 if (fileInput) fileInput.value = '';
             });
             
-            // Limpa selects de cidade
             document.getElementById('naturalidade').innerHTML = '<option value="">Selecione o Estado primeiro</option>';
             document.getElementById('cidade').innerHTML = '<option value="">Selecione o Estado primeiro</option>';
             
-            // Limpa documentos
             documentosAnexados = [];
             renderizarDocumentos();
         }
 
         // ============================================
-        // FUNÇÕES DE FORMATAÇÃO DE TEXTO
+        // FUNÇÕES DE FORMATAÇÃO
         // ============================================
         
         function formatarNome(texto) {
@@ -449,12 +469,8 @@
             const textoLimpo = texto.trim().replace(/\s+/g, ' ');
             
             return textoLimpo.toLowerCase().split(' ').map((palavra, index) => {
-                if (index === 0) {
-                    return palavra.charAt(0).toUpperCase() + palavra.slice(1);
-                }
-                if (preposicoes.includes(palavra)) {
-                    return palavra;
-                }
+                if (index === 0) return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+                if (preposicoes.includes(palavra)) return palavra;
                 return palavra.charAt(0).toUpperCase() + palavra.slice(1);
             }).join(' ');
         }
@@ -473,11 +489,9 @@
         function aplicarFormatacaoTempoReal(input, tipoFormatacao) {
             const cursorPos = input.selectionStart;
             const valorAtual = input.value;
-            
             if (!valorAtual) return;
             
             let novoTexto = '';
-            
             switch(tipoFormatacao) {
                 case 'all':
                     novoTexto = valorAtual.toUpperCase();
@@ -501,23 +515,14 @@
 
         function formatarNomePreservandoEspacos(texto) {
             if (!texto) return '';
-            
             const preposicoes = ['de', 'do', 'da', 'dos', 'das', 'e', 'a', 'o', 'as', 'os'];
             const palavras = texto.split(' ');
             
             const palavrasFormatadas = palavras.map((palavra, index) => {
                 if (palavra === '') return '';
-                
                 const palavraLower = palavra.toLowerCase();
-                
-                if (index === 0) {
-                    return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
-                }
-                
-                if (preposicoes.includes(palavraLower)) {
-                    return palavraLower;
-                }
-                
+                if (index === 0) return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
+                if (preposicoes.includes(palavraLower)) return palavraLower;
                 return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
             });
             
@@ -525,7 +530,7 @@
         }
 
         // ============================================
-        // FUNÇÕES DE CARREGAMENTO DE DADOS
+        // CARREGAMENTO DE DADOS
         // ============================================
         
         async function carregarEstados() {
@@ -551,7 +556,6 @@
         async function carregarCidadesNaturalidade() {
             const uf = document.getElementById('uf_natural').value;
             const cidadeSelect = document.getElementById('naturalidade');
-            
             cidadeSelect.innerHTML = '<option value="">Carregando...</option>';
             
             if (!uf) {
@@ -562,7 +566,6 @@
             try {
                 const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`);
                 const cidades = await res.json();
-                
                 cidadeSelect.innerHTML = '<option value="">Selecione a Cidade</option>';
                 cidades.forEach(cidade => {
                     const option = document.createElement('option');
@@ -572,14 +575,13 @@
                 });
             } catch (err) {
                 console.error('Erro ao carregar cidades:', err);
-                cidadeSelect.innerHTML = '<option value="">Erro ao carregar cidades</option>';
+                cidadeSelect.innerHTML = '<option value="">Erro ao carregar</option>';
             }
         }
 
         async function carregarCidadesEndereco() {
             const uf = document.getElementById('uf_endereco').value;
             const cidadeSelect = document.getElementById('cidade');
-            
             cidadeSelect.innerHTML = '<option value="">Carregando...</option>';
             
             if (!uf) {
@@ -590,7 +592,6 @@
             try {
                 const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`);
                 const cidades = await res.json();
-                
                 cidadeSelect.innerHTML = '<option value="">Selecione a Cidade</option>';
                 cidades.forEach(cidade => {
                     const option = document.createElement('option');
@@ -600,12 +601,12 @@
                 });
             } catch (err) {
                 console.error('Erro ao carregar cidades:', err);
-                cidadeSelect.innerHTML = '<option value="">Erro ao carregar cidades</option>';
+                cidadeSelect.innerHTML = '<option value="">Erro ao carregar</option>';
             }
         }
 
         // ============================================
-        // FUNÇÕES DE PREVIEW E DOCUMENTOS
+        // PREVIEW E DOCUMENTOS
         // ============================================
         
         function previewImg(input, imgId) {
@@ -638,25 +639,19 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64 = e.target.result.split(',')[1];
-                
-                const documento = {
+                documentosAnexados.push({
                     tipo: tipo,
                     nome_arquivo: file.name,
                     descricao: formatarFrase(descricao),
                     arquivo_base64: base64,
                     mime_type: file.type
-                };
-
-                documentosAnexados.push(documento);
+                });
                 renderizarDocumentos();
-                
                 document.getElementById('descricao-documento').value = '';
                 input.value = '';
-                
                 Swal.fire({
                     icon: 'success',
                     title: 'Documento Adicionado',
-                    text: file.name,
                     toast: true,
                     position: 'top-end',
                     timer: 2000,
@@ -669,7 +664,6 @@
         function renderizarDocumentos() {
             const lista = document.getElementById('lista-documentos');
             const counter = document.getElementById('docs-counter');
-            
             counter.textContent = documentosAnexados.length;
             
             if (documentosAnexados.length === 0) {
@@ -689,18 +683,13 @@
             lista.innerHTML = documentosAnexados.map((doc, index) => {
                 const icone = doc.mime_type.includes('pdf') ? 'fa-file-pdf' : 'fa-image';
                 const tamanhoKB = (doc.arquivo_base64.length * 0.75 / 1024).toFixed(1);
-                
                 return `
                     <div class="doc-item">
                         <div class="doc-info">
-                            <h4>
-                                <i class="fas ${icone}"></i> 
-                                ${tipoLabel[doc.tipo]}
-                                <span class="doc-badge">${tamanhoKB} KB</span>
-                            </h4>
+                            <h4><i class="fas ${icone}"></i> ${tipoLabel[doc.tipo]}<span class="doc-badge">${tamanhoKB} KB</span></h4>
                             <p><i class="fas fa-file"></i> ${doc.descricao}</p>
                         </div>
-                        <button type="button" class="btn-remove-doc" onclick="removerDocumento(${index})" title="Remover documento">
+                        <button type="button" class="btn-remove-doc" onclick="removerDocumento(${index})">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
@@ -711,7 +700,6 @@
         function removerDocumento(index) {
             Swal.fire({
                 title: 'Remover Documento?',
-                text: 'Esta ação não pode ser desfeita',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#e74c3c',
@@ -760,7 +748,6 @@
             rawData.obs_tacticas = formatarFrase(rawData.obs_tacticas);
             rawData.envolvimento_alvo = formatarFrase(rawData.envolvimento_alvo);
             rawData.detalhes_operacao = formatarFrase(rawData.detalhes_operacao);
-
             rawData.modo = form.dataset.modo;
             rawData.idEdicao = form.dataset.idEdicao;
 
@@ -771,7 +758,6 @@
             rawData.foto1 = getB64('prev1');
             rawData.foto2 = getB64('prev2');
             rawData.foto3 = getB64('prev3');
-
             rawData.documentos = documentosAnexados;
 
             try {
@@ -785,11 +771,7 @@
                 if (data.success) {
                     Swal.fire({
                         title: 'Sucesso!',
-                        html: `
-                            <p>${data.message}</p>
-                            <h3 style="color: #28a745;">ID: ${data.id || 'N/A'}</h3>
-                            <p><small>${data.documentos_salvos || 0} documento(s) salvos</small></p>
-                        `,
+                        html: `<p>${data.message}</p><h3 style="color: #28a745;">ID: ${data.id || 'N/A'}</h3>`,
                         icon: 'success',
                         confirmButtonText: 'OK'
                     }).then(() => limparFormulario());
@@ -797,13 +779,12 @@
                     Swal.fire('Erro', data.error || 'Erro ao salvar', 'error');
                 }
             } catch (err) {
-                console.error(err);
                 Swal.fire('Erro', 'Falha na conexão com servidor.', 'error');
             }
         };
 
         // ============================================
-        // MODAL DE GERENCIAMENTO (CORRIGIDO Z-INDEX)
+        // MODAL DE GERENCIAMENTO
         // ============================================
         
         function abrirModalGerenciar() {
@@ -819,12 +800,11 @@
 
         document.getElementById('input-busca').addEventListener('input', async function(e) {
             clearTimeout(timeoutBusca);
-            
             const termo = e.target.value.trim();
             const lista = document.getElementById('lista-resultados');
             
             if (termo.length < 2) {
-                lista.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">Digite pelo menos 2 caracteres para buscar</p>';
+                lista.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">Digite pelo menos 2 caracteres</p>';
                 return;
             }
 
@@ -832,20 +812,12 @@
 
             timeoutBusca = setTimeout(async () => {
                 try {
-                    const url = `${API_URL}/buscar-alvos?nome=${encodeURIComponent(termo)}`;
-                    console.log('🔍 Buscando:', url);
-                    
-                    const res = await fetch(url);
-                    
-                    if (!res.ok) {
-                        throw new Error(`HTTP ${res.status}`);
-                    }
-                    
+                    const res = await fetch(`${API_URL}/buscar-alvos?nome=${encodeURIComponent(termo)}`);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const alvos = await res.json();
-                    console.log('✅ Resultados:', alvos.length);
                     
                     if (!alvos || alvos.length === 0) {
-                        lista.innerHTML = '<p style="text-align:center; color:#999; padding:20px;"><i class="fas fa-exclamation-circle"></i> Nenhum resultado encontrado</p>';
+                        lista.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">Nenhum resultado encontrado</p>';
                         return;
                     }
                     
@@ -856,35 +828,20 @@
                                 <small>CPF: ${alvo.cpf || 'Não informado'} | ID: ${alvo.id}</small>
                             </div>
                             <div class="result-actions">
-                                <button class="btn-action btn-edit" onclick="carregarAlvo(${alvo.id})" title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-action btn-qr" onclick="visualizarQR(${alvo.id})" title="QR Code">
-                                    <i class="fas fa-qrcode"></i>
-                                </button>
-                                <button class="btn-action btn-delete" onclick="excluirAlvo(${alvo.id}, '${(alvo.nome || '').replace(/'/g, "\\'")}');" title="Excluir">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
+                                <button class="btn-action btn-edit" onclick="carregarAlvo(${alvo.id})"><i class="fas fa-edit"></i></button>
+                                <button class="btn-action btn-qr" onclick="visualizarQR(${alvo.id})"><i class="fas fa-qrcode"></i></button>
+                                <button class="btn-action btn-delete" onclick="excluirAlvo(${alvo.id}, '${(alvo.nome || '').replace(/'/g, "\\'")}')"><i class="fas fa-trash-alt"></i></button>
                             </div>
                         </div>
                     `).join('');
                 } catch (err) {
-                    console.error('💥 ERRO:', err);
-                    lista.innerHTML = `
-                        <div style="text-align:center; padding:20px; background: rgba(231,76,60,0.1); border-radius: 8px;">
-                            <i class="fas fa-times-circle" style="font-size: 48px; color: #e74c3c;"></i>
-                            <h3 style="color: #e74c3c;">Erro ao buscar dados</h3>
-                            <p style="color: #fff;">${err.message}</p>
-                        </div>
-                    `;
+                    lista.innerHTML = `<div style="text-align:center; padding:20px; color: #e74c3c;">Erro ao buscar: ${err.message}</div>`;
                 }
             }, 500);
         });
 
-        // CORREÇÃO: Fecha modal ANTES de abrir QR Code ou Exclusão
         async function carregarAlvo(id) {
-            fecharModalGerenciar(); // FECHA O MODAL PRIMEIRO
-            
+            fecharModalGerenciar();
             Swal.fire({ title: 'Carregando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             
             try {
@@ -900,9 +857,7 @@
                     
                     Object.keys(data).forEach(key => {
                         const input = form.querySelector(`[name="${key}"]`);
-                        if (input && key !== 'data_nascimento') {
-                            input.value = data[key] || '';
-                        }
+                        if (input && key !== 'data_nascimento') input.value = data[key] || '';
                     });
 
                     if (data.data_nascimento) {
@@ -913,9 +868,7 @@
                         document.getElementById('uf_natural').value = data.uf_natural;
                         await carregarCidadesNaturalidade();
                         setTimeout(() => {
-                            if (data.naturalidade) {
-                                document.getElementById('naturalidade').value = data.naturalidade;
-                            }
+                            if (data.naturalidade) document.getElementById('naturalidade').value = data.naturalidade;
                         }, 500);
                     }
 
@@ -923,9 +876,7 @@
                         document.getElementById('uf_endereco').value = data.uf_endereco;
                         await carregarCidadesEndereco();
                         setTimeout(() => {
-                            if (data.cidade) {
-                                document.getElementById('cidade').value = data.cidade;
-                            }
+                            if (data.cidade) document.getElementById('cidade').value = data.cidade;
                         }, 500);
                     }
 
@@ -952,27 +903,26 @@
 
                     Swal.fire({
                         icon: 'info', 
-                        title: 'Modo Edição Ativado', 
+                        title: 'Modo Edição', 
                         text: `Dados do ID ${data.id} carregados`,
                         timer: 3000,
                         background: '#1a1a2e',
                         color: '#fff'
                     });
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else {
-                    Swal.fire('Aviso', 'Alvo não encontrado.', 'warning');
                 }
             } catch (err) {
-                console.error(err);
                 Swal.fire('Erro', 'Erro ao buscar dados.', 'error');
             }
         }
 
-        // CORREÇÃO: Fecha modal ANTES de mostrar QR Code
+        // ============================================
+        // VISUALIZAR QR CODE COM DOWNLOAD
+        // ============================================
+        
         async function visualizarQR(id) {
-            fecharModalGerenciar(); // FECHA O MODAL PRIMEIRO
+            fecharModalGerenciar();
             
-            // Pequeno delay para garantir que o modal fechou
             setTimeout(async () => {
                 try {
                     const res = await fetch(`${API_URL}/buscar-detalhes/${id}`);
@@ -990,15 +940,33 @@
                                 <p style="margin-top: 15px; color: #ffd700; font-weight: bold; font-size: 18px;">${data.nome}</p>
                                 <p style="color: #ccc;">CPF: ${data.cpf || 'Não informado'}</p>
                             `,
-                            width: 450,
+                            width: 500,
                             background: '#1a1a2e',
                             color: '#fff',
+                            showCancelButton: true,
+                            showDenyButton: true,
+                            confirmButtonText: '<i class="fas fa-check"></i> OK',
+                            denyButtonText: '<i class="fas fa-download"></i> Baixar QR Code',
+                            denyButtonColor: '#27ae60',
+                            confirmButtonColor: '#3498db',
+                            customClass: {
+                                denyButton: 'btn-download-qr'
+                            },
                             didOpen: () => {
-                                new QRCode(document.getElementById("qrcode-temp"), {
+                                const qrContainer = document.getElementById("qrcode-temp");
+                                qrContainer.innerHTML = '';
+                                new QRCode(qrContainer, {
                                     text: qrText,
                                     width: 200,
-                                    height: 200
+                                    height: 200,
+                                    colorDark: "#000000",
+                                    colorLight: "#ffffff",
+                                    correctLevel: QRCode.CorrectLevel.H
                                 });
+                            }
+                        }).then((result) => {
+                            if (result.isDenied) {
+                                baixarQRCode(data.nome, data.id);
                             }
                         });
                     }
@@ -1008,15 +976,51 @@
             }, 100);
         }
 
-        // CORREÇÃO: Fecha modal ANTES de confirmar exclusão
+        function baixarQRCode(nomeAlvo, idAlvo) {
+            try {
+                const qrContainer = document.getElementById("qrcode-temp");
+                const canvas = qrContainer.querySelector('canvas');
+                
+                if (!canvas) {
+                    Swal.fire('Erro', 'QR Code não encontrado', 'error');
+                    return;
+                }
+
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    const nomeArquivo = `QRCode_${nomeAlvo.replace(/\s+/g, '_')}_ID${idAlvo}.png`;
+                    
+                    link.href = url;
+                    link.download = nomeArquivo;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Download Iniciado',
+                        text: `Arquivo: ${nomeArquivo}`,
+                        toast: true,
+                        position: 'top-end',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }, 'image/png');
+            } catch (error) {
+                console.error('Erro ao baixar QR Code:', error);
+                Swal.fire('Erro', 'Falha ao gerar arquivo PNG', 'error');
+            }
+        }
+
         async function excluirAlvo(id, nome) {
-            fecharModalGerenciar(); // FECHA O MODAL PRIMEIRO
+            fecharModalGerenciar();
             
-            // Pequeno delay para garantir que o modal fechou
             setTimeout(async () => {
                 const result = await Swal.fire({
                     title: 'Confirmar Exclusão',
-                    html: `Deseja realmente excluir o registro de:<br><strong style="color: #ffd700;">${nome}</strong><br>ID: ${id}`,
+                    html: `Deseja realmente excluir:<br><strong style="color: #ffd700;">${nome}</strong><br>ID: ${id}`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#e74c3c',
@@ -1028,19 +1032,10 @@
 
                 if (result.isConfirmed) {
                     try {
-                        const res = await fetch(`${API_URL}/deletar-alvo/${id}`, {
-                            method: 'DELETE'
-                        });
+                        const res = await fetch(`${API_URL}/deletar-alvo/${id}`, { method: 'DELETE' });
                         const data = await res.json();
-                        
                         if (data.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Excluído',
-                                text: 'Registro excluído com sucesso',
-                                background: '#1a1a2e',
-                                color: '#fff'
-                            });
+                            Swal.fire({ icon: 'success', title: 'Excluído', background: '#1a1a2e', color: '#fff' });
                         } else {
                             Swal.fire('Erro', data.error || 'Erro ao excluir', 'error');
                         }
@@ -1060,30 +1055,18 @@
             VMasker(document.getElementById("cpf")).maskPattern("999.999.999-99");
             
             document.querySelectorAll('.capitalize-all').forEach(input => {
-                input.addEventListener('input', function() {
-                    aplicarFormatacaoTempoReal(this, 'all');
-                });
-                input.addEventListener('blur', function() {
-                    this.value = formatarNomeCompleto(this.value);
-                });
+                input.addEventListener('input', function() { aplicarFormatacaoTempoReal(this, 'all'); });
+                input.addEventListener('blur', function() { this.value = formatarNomeCompleto(this.value); });
             });
             
             document.querySelectorAll('.capitalize-name').forEach(input => {
-                input.addEventListener('input', function() {
-                    aplicarFormatacaoTempoReal(this, 'name');
-                });
-                input.addEventListener('blur', function() {
-                    this.value = formatarNome(this.value);
-                });
+                input.addEventListener('input', function() { aplicarFormatacaoTempoReal(this, 'name'); });
+                input.addEventListener('blur', function() { this.value = formatarNome(this.value); });
             });
 
             document.querySelectorAll('.capitalize-text').forEach(input => {
-                input.addEventListener('input', function() {
-                    aplicarFormatacaoTempoReal(this, 'text');
-                });
-                input.addEventListener('blur', function() {
-                    this.value = formatarFrase(this.value);
-                });
+                input.addEventListener('input', function() { aplicarFormatacaoTempoReal(this, 'text'); });
+                input.addEventListener('blur', function() { this.value = formatarFrase(this.value); });
             });
         });
 
@@ -1093,7 +1076,6 @@
                 Swal.fire({
                     icon: 'warning',
                     title: 'CPF Inválido',
-                    text: 'O CPF deve conter 11 dígitos',
                     toast: true,
                     position: 'top-end',
                     timer: 3000,
@@ -1103,9 +1085,7 @@
         });
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                fecharModalGerenciar();
-            }
+            if (e.key === 'Escape') fecharModalGerenciar();
         });
 
         renderizarDocumentos();
