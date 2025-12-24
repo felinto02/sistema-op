@@ -648,19 +648,14 @@ async function visualizarQR(id) {
             const data = await res.json();
             
             if (data && data.id) {
-                const qrText = `ID: ${data.id}
-Nome: ${data.nome}
-CPF: ${data.cpf || 'N/A'}
-RG: ${data.rg || 'N/A'}`;
-                
                 Swal.fire({
                     title: `QR Code - ID ${data.id}`,
                     html: `
                         <div style="background: white; padding: 20px; border-radius: 10px; display: inline-block; margin: 20px 0;">
-                            <div id="qrcode-container"></div>
+                            <div id="qrcode-render"></div> 
                         </div>
                         <p style="margin-top: 15px; color: #ffd700; font-weight: bold; font-size: 18px;">${data.nome}</p>
-                        <p style="color: #ccc;">CPF: ${data.cpf || 'Não informado'}</p>
+                        <p style="color: #ccc;">Escaneie para abrir o perfil</p>
                     `,
                     width: 500,
                     background: '#1a1a2e',
@@ -670,16 +665,15 @@ RG: ${data.rg || 'N/A'}`;
                     denyButtonText: '<i class="fas fa-download"></i> Baixar QR Code',
                     denyButtonColor: '#27ae60',
                     confirmButtonColor: '#3498db',
-                    showCancelButton: false,
-                    customClass: {
-                        denyButton: 'btn-download-qr'
-                    },
                     didOpen: () => {
-                        const qrContainer = document.getElementById("qrcode-container");
-                        qrContainer.innerHTML = '';
+                        // CORREÇÃO: Pegamos o elemento correto dentro do modal
+                        const elementoQR = document.getElementById("qrcode-render");
                         
-                        new QRCode(qrContainer, {
-                            text: qrText,
+                        // GERAR O LINK: Altere 'main.html' se o seu arquivo tiver outro nome
+                        const qrLink = `${window.location.origin}/index.html?id=${data.id}`;
+                        
+                        new QRCode(elementoQR, {
+                            text: qrLink,
                             width: 256,
                             height: 256,
                             colorDark: "#000000",
@@ -695,13 +689,7 @@ RG: ${data.rg || 'N/A'}`;
             }
         } catch (error) {
             console.error('Erro ao visualizar QR:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro',
-                text: 'Não foi possível gerar o QR Code',
-                background: '#1a1a2e',
-                color: '#fff'
-            });
+            Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao gerar QR Code', background: '#1a1a2e', color: '#fff' });
         }
     }, 100);
 }
