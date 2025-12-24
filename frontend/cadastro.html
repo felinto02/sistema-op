@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -14,9 +15,43 @@
 
     <style>
         .form-container { max-width: 900px; margin: 0px auto; padding: 20px; }
-        .admin-menu { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; flex-wrap: wrap; }
-        .admin-menu button { background: none; border: 1px solid #ffd700; color: #ffd700; padding: 8px 15px; border-radius: 5px; cursor: pointer; transition: 0.3s; font-size: 14px; }
-        .admin-menu button:hover { background: #ffd700; color: #000; }
+        
+        .top-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .btn-top {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-top:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-novo-cadastro {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        
+        .btn-novo-cadastro:hover {
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
         
         .section-card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
         .section-title { color: #ffd700; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #ffd700; padding-bottom: 5px; display: flex; align-items: center; gap: 10px; }
@@ -27,13 +62,34 @@
         .form-group input, .form-group textarea, .form-group select { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 5px; font-family: inherit; }
         
         .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
-        .photo-upload { position: relative; height: 150px; background: #222; border: 2px dashed #444; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; transition: 0.3s; }
+        .photo-upload { 
+            position: relative; 
+            height: 150px; 
+            background: #222; 
+            border: 2px dashed #444; 
+            border-radius: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden; 
+            cursor: pointer; 
+            transition: 0.3s; 
+        }
         .photo-upload:hover { border-color: #ffd700; }
-        .photo-upload img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+        .photo-upload img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain;
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            z-index: 3;
+            background: #000;
+        }
         .photo-upload input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; z-index: 2; }
         .photo-upload i { color: #666; font-size: 24px; position: relative; z-index: 1; pointer-events: none; }
+        .photo-upload.has-image i { display: none; }
 
-        /* DOCUMENTOS - MELHORADO */
         .docs-section { margin-top: 20px; padding: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; border: 1px solid rgba(255,215,0,0.2); }
         .docs-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         .docs-header h4 { margin: 0; color: #ffd700; font-size: 16px; }
@@ -58,13 +114,26 @@
         .btn-salvar { background: linear-gradient(135deg, #28a745, #20c997); color: white; border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 20px; width: 100%; transition: 0.3s; }
         .btn-salvar:hover { background: linear-gradient(135deg, #20c997, #17a2b8); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(40,167,69,0.4); }
         
-        /* MODAL BUSCA */
-        #modal-qr { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
+        #modal-gerenciar { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; justify-content: center; align-items: center; }
+        .modal-content-gerenciar { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 30px; border-radius: 15px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; border: 2px solid #ffd700; }
+        .modal-header-gerenciar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #ffd700; }
+        .modal-header-gerenciar h2 { margin: 0; color: #ffd700; }
+        .search-input { width: 94%; padding: 12px; border: 2px solid #ffd700; border-radius: 8px; font-size: 16px; margin-bottom: 20px; background: #1a1a1a; color: white; }
+        .result-item { padding: 15px; border-bottom: 1px solid rgba(255,215,0,0.2); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); margin-bottom: 10px; border-radius: 8px; }
+        .result-info strong { color: #ffd700; font-size: 16px; }
+        .result-info small { color: #ccc; display: block; margin-top: 5px; }
+        .result-actions { display: flex; gap: 8px; }
+        .btn-action { border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; color: white; transition: 0.3s; font-weight: bold; }
+        .btn-action:hover { transform: scale(1.05); box-shadow: 0 3px 10px rgba(0,0,0,0.5); }
+        .btn-edit { background: #3498db; }
+        .btn-qr { background: #f39c12; }
+        .btn-delete { background: #e74c3c; }
+        .btn-close-modal { background: #7f8c8d; border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-close-modal:hover { background: #95a5a6; }
         
-        /* LOADING ANIMATION */
-        .loading-docs { text-align: center; padding: 20px; color: #ffd700; }
-        .loading-docs i { animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .modal-content-gerenciar::-webkit-scrollbar { width: 10px; }
+        .modal-content-gerenciar::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 10px; }
+        .modal-content-gerenciar::-webkit-scrollbar-thumb { background: #ffd700; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -78,21 +147,45 @@
         <h2>POLÍCIA CIVIL</h2>
     </div>
 
-    <div class="form-container">
-        <div class="admin-menu">
-            <button onclick="location.href='index.html'"><i class="fas fa-home"></i> Home</button>
-            <button onclick="abrirBuscaQR()"><i class="fas fa-search"></i> Buscar por ID</button>
-            <button onclick="resetarFormulario()"><i class="fas fa-plus"></i> Novo Cadastro</button>
-        </div>
+    <div class="top-buttons">
+        <button class="btn-top btn-novo-cadastro" onclick="novoCadastro()">
+            <i class="fas fa-plus-circle"></i> Novo Cadastro
+        </button>
+        <button class="btn-top" onclick="abrirModalGerenciar()">
+            <i class="fas fa-search"></i> Gerenciar Alvos
+        </button>
+    </div>
 
+    <div class="form-container">
         <form id="formCadastro" data-modo="create">
-            <!-- QUALIFICAÇÃO DO ALVO -->
+
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-camera"></i> Galeria de Fotos do Alvo</div>
+                <div class="photo-grid">
+                    <div class="photo-upload">
+                        <i class="fas fa-plus"></i>
+                        <input type="file" accept="image/*" onchange="previewImg(this, 'prev1')">
+                        <img id="prev1" style="display:none;">
+                    </div>
+                    <div class="photo-upload">
+                        <i class="fas fa-plus"></i>
+                        <input type="file" accept="image/*" onchange="previewImg(this, 'prev2')">
+                        <img id="prev2" style="display:none;">
+                    </div>
+                    <div class="photo-upload">
+                        <i class="fas fa-plus"></i>
+                        <input type="file" accept="image/*" onchange="previewImg(this, 'prev3')">
+                        <img id="prev3" style="display:none;">
+                    </div>
+                </div>
+            </div>
+            
             <div class="section-card">
                 <div class="section-title"><i class="fas fa-user"></i> Qualificação do Alvo</div>
                 <div class="grid-form">
                     <div class="form-group" style="grid-column: span 2;">
                         <label>Nome Completo</label>
-                        <input type="text" name="nome" required placeholder="Ex: João da Silva">
+                        <input type="text" name="nome" class="capitalize-all" required placeholder="Ex: João da Silva">
                     </div>
                     <div class="form-group">
                         <label>CPF</label>
@@ -107,33 +200,36 @@
                         <input type="date" name="data_nascimento">
                     </div>
                     <div class="form-group">
-                        <label>Naturalidade</label>
-                        <input type="text" name="naturalidade">
+                        <label>UF Naturalidade</label>
+                        <select name="uf_natural" id="uf_natural" onchange="carregarCidadesNaturalidade()">
+                            <option value="">Selecione</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label>UF</label>
-                        <input type="text" name="uf_natural" maxlength="2">
+                        <label>Naturalidade</label>
+                        <select name="naturalidade" id="naturalidade">
+                            <option value="">Selecione o Estado primeiro</option>
+                        </select>
                     </div>
                 </div>
                 <div class="grid-form" style="margin-top: 15px;">
                     <div class="form-group">
                         <label>Nome da Mãe</label>
-                        <input type="text" name="mae">
+                        <input type="text" name="mae" class="capitalize-name">
                     </div>
                     <div class="form-group">
                         <label>Nome do Pai</label>
-                        <input type="text" name="pai">
+                        <input type="text" name="pai" class="capitalize-name">
                     </div>
                 </div>
             </div>
 
-            <!-- LOCALIZAÇÃO -->
             <div class="section-card">
                 <div class="section-title"><i class="fas fa-map-marker-alt"></i> Localização</div>
                 <div class="grid-form">
                     <div class="form-group" style="grid-column: span 2;">
                         <label>Rua/Logradouro</label>
-                        <input type="text" name="rua">
+                        <input type="text" name="rua" class="capitalize-name">
                     </div>
                     <div class="form-group">
                         <label>Número</label>
@@ -141,24 +237,28 @@
                     </div>
                     <div class="form-group">
                         <label>Bairro</label>
-                        <input type="text" name="bairro">
-                    </div>
-                    <div class="form-group">
-                        <label>Cidade</label>
-                        <input type="text" name="cidade">
+                        <input type="text" name="bairro" class="capitalize-name">
                     </div>
                     <div class="form-group">
                         <label>UF</label>
-                        <input type="text" name="uf_endereco" maxlength="2" value="RO">
+                        <select name="uf_endereco" id="uf_endereco" onchange="carregarCidadesEndereco()">
+                            <option value="">Selecione</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cidade</label>
+                        <select name="cidade" id="cidade">
+                            <option value="">Selecione o Estado primeiro</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-group" style="margin-top: 10px;">
                     <label>Ponto de Referência / Complemento</label>
-                    <input type="text" name="complemento">
+                    <input type="text" name="complemento" class="capitalize-text">
                 </div>
                 <div class="form-group" style="margin-top: 10px;">
                     <label>Observações Táticas de Local</label>
-                    <textarea name="obs_tacticas" rows="2" placeholder="Descreva características táticas relevantes do local..."></textarea>
+                    <textarea name="obs_tacticas" rows="2" class="capitalize-text" placeholder="Descreva características táticas relevantes do local..."></textarea>
                 </div>
                 <div class="form-group" style="margin-top: 10px;">
                     <label>Link Google Maps</label>
@@ -166,21 +266,19 @@
                 </div>
             </div>
 
-            <!-- INTELIGÊNCIA E OPERAÇÕES -->
             <div class="section-card">
                 <div class="section-title"><i class="fas fa-brain"></i> Inteligência e Operações</div>
                 
                 <div class="form-group">
                     <label><i class="fas fa-user-secret"></i> Envolvimento Criminal / Histórico</label>
-                    <textarea name="envolvimento_alvo" rows="4" placeholder="Descreva o envolvimento do alvo em atividades criminosas, facções, antecedentes..."></textarea>
+                    <textarea name="envolvimento_alvo" rows="4" class="capitalize-text" placeholder="Descreva o envolvimento do alvo em atividades criminosas, facções, antecedentes..."></textarea>
                 </div>
                 
                 <div class="form-group" style="margin-top: 15px;">
                     <label><i class="fas fa-clipboard-list"></i> Detalhes da Operação / Mandado</label>
-                    <textarea name="detalhes_operacao" rows="4" placeholder="Informações sobre a operação em andamento, natureza do mandado, objetivos..."></textarea>
+                    <textarea name="detalhes_operacao" rows="4" class="capitalize-text" placeholder="Informações sobre a operação em andamento, natureza do mandado, objetivos..."></textarea>
                 </div>
                 
-                <!-- SEÇÃO DE DOCUMENTOS MELHORADA -->
                 <div class="docs-section">
                     <div class="docs-header">
                         <i class="fas fa-folder-open" style="color: #ffd700; font-size: 20px;"></i>
@@ -212,7 +310,7 @@
                             </div>
                             <div class="form-group">
                                 <label><i class="fas fa-edit"></i> Descrição (opcional)</label>
-                                <input type="text" id="descricao-documento" placeholder="Ex: Mandado de busca e apreensão">
+                                <input type="text" id="descricao-documento" class="capitalize-text" placeholder="Ex: Mandado de busca e apreensão">
                             </div>
                         </div>
                         
@@ -223,95 +321,311 @@
                 </div>
             </div>
 
-            <!-- GALERIA DE FOTOS -->
-            <div class="section-card">
-                <div class="section-title"><i class="fas fa-camera"></i> Galeria de Fotos do Alvo</div>
-                <div class="photo-grid">
-                    <div class="photo-upload">
-                        <i class="fas fa-plus"></i>
-                        <input type="file" accept="image/*" onchange="previewImg(this, 'prev1')">
-                        <img id="prev1" style="display:none;">
-                    </div>
-                    <div class="photo-upload">
-                        <i class="fas fa-plus"></i>
-                        <input type="file" accept="image/*" onchange="previewImg(this, 'prev2')">
-                        <img id="prev2" style="display:none;">
-                    </div>
-                    <div class="photo-upload">
-                        <i class="fas fa-plus"></i>
-                        <input type="file" accept="image/*" onchange="previewImg(this, 'prev3')">
-                        <img id="prev3" style="display:none;">
-                    </div>
-                </div>
-            </div>
-
             <button type="submit" class="btn-salvar" id="btnAcao">
                 <i class="fas fa-save"></i> SALVAR REGISTRO OPERACIONAL
             </button>
         </form>
     </div>
 
-    <!-- MODAL BUSCA -->
-    <div id="modal-qr">
-        <h2 style="color: #ffd700; margin-bottom: 20px;"><i class="fas fa-search"></i> Buscar Alvo por ID</h2>
-        <input type="number" id="inputBuscaId" style="padding: 15px; font-size: 20px; width: 250px; text-align: center; border-radius: 10px; border: none;" placeholder="Digite o ID">
-        <div style="margin-top: 20px; display: flex; gap: 10px;">
-            <button onclick="buscarPorId()" style="background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                <i class="fas fa-search"></i> BUSCAR
-            </button>
-            <button onclick="document.getElementById('modal-qr').style.display='none'" style="background: #dc3545; color: white; padding: 12px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                <i class="fas fa-times"></i> CANCELAR
-            </button>
+    <div id="modal-gerenciar">
+        <div class="modal-content-gerenciar">
+            <div class="modal-header-gerenciar">
+                <h2><i class="fas fa-search"></i> Gerenciar Alvos</h2>
+                <button class="btn-close-modal" onclick="fecharModalGerenciar()">
+                    <i class="fas fa-times"></i> Fechar
+                </button>
+            </div>
+            <input type="text" id="input-busca" class="search-input" placeholder="🔍 Digite o nome ou CPF para buscar..." autocomplete="off">
+            <div id="lista-resultados"></div>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÃO DA API
-        const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-            ? "http://localhost:3000" 
-            : window.location.origin;
+        // ============================================
+        // CONFIGURAÇÕES GLOBAIS
+        // ============================================
+        
+        let API_URL;
+        
+        if (window.location.protocol === 'file:' || 
+            window.location.hostname === 'localhost' || 
+            window.location.hostname === '127.0.0.1') {
+            API_URL = "http://localhost:3000";
+            console.log('🔧 Modo DESENVOLVIMENTO detectado');
+        } else {
+            API_URL = window.location.origin;
+            console.log('🌐 Modo PRODUÇÃO detectado');
+        }
 
-        // Array para armazenar documentos
         let documentosAnexados = [];
+        let timeoutBusca;
 
-        // MÁSCARAS
-        VMasker(document.getElementById("cpf")).maskPattern("999.999.999-99");
+        console.log('='.repeat(60));
+        console.log('🚀 SISTEMA DE CADASTRO INICIADO');
+        console.log('📡 API URL:', API_URL);
+        console.log('⏰ Data/Hora:', new Date().toLocaleString('pt-BR'));
+        console.log('='.repeat(60));
 
+        // ============================================
+        // FUNÇÃO NOVO CADASTRO
+        // ============================================
+        
+        function novoCadastro() {
+            Swal.fire({
+                title: 'Novo Cadastro',
+                text: 'Deseja limpar todos os campos e criar um novo cadastro?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sim, novo cadastro',
+                cancelButtonText: 'Cancelar',
+                background: '#1a1a2e',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    limparFormulario();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Formulário Limpo',
+                        text: 'Pronto para novo cadastro',
+                        toast: true,
+                        position: 'top-end',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: '#1a1a2e',
+                        color: '#fff'
+                    });
+                    
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+        }
+
+        function limparFormulario() {
+            const form = document.getElementById('formCadastro');
+            
+            // Reseta modo para criação
+            form.dataset.modo = 'create';
+            delete form.dataset.idEdicao;
+            
+            // Reseta botão
+            document.getElementById('btnAcao').innerHTML = '<i class="fas fa-save"></i> SALVAR REGISTRO OPERACIONAL';
+            document.getElementById('btnAcao').style.background = "linear-gradient(135deg, #28a745, #20c997)";
+            
+            // Limpa todos os campos
+            form.reset();
+            
+            // Limpa imagens
+            ['prev1', 'prev2', 'prev3'].forEach((id, index) => {
+                const img = document.getElementById(id);
+                const container = img.parentElement;
+                img.src = '';
+                img.style.display = 'none';
+                container.classList.remove('has-image');
+                
+                // Limpa input file
+                const fileInput = container.querySelector('input[type="file"]');
+                if (fileInput) fileInput.value = '';
+            });
+            
+            // Limpa selects de cidade
+            document.getElementById('naturalidade').innerHTML = '<option value="">Selecione o Estado primeiro</option>';
+            document.getElementById('cidade').innerHTML = '<option value="">Selecione o Estado primeiro</option>';
+            
+            // Limpa documentos
+            documentosAnexados = [];
+            renderizarDocumentos();
+        }
+
+        // ============================================
         // FUNÇÕES DE FORMATAÇÃO DE TEXTO
+        // ============================================
+        
         function formatarNome(texto) {
             if (!texto) return '';
-            const preposicoes = ['de', 'do', 'da', 'dos', 'das', 'e'];
-            return texto.toLowerCase().trim().split(/\s+/).map(palavra => {
-                if (preposicoes.includes(palavra)) return palavra;
+            const preposicoes = ['de', 'do', 'da', 'dos', 'das', 'e', 'a', 'o', 'as', 'os'];
+            const textoLimpo = texto.trim().replace(/\s+/g, ' ');
+            
+            return textoLimpo.toLowerCase().split(' ').map((palavra, index) => {
+                if (index === 0) {
+                    return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+                }
+                if (preposicoes.includes(palavra)) {
+                    return palavra;
+                }
                 return palavra.charAt(0).toUpperCase() + palavra.slice(1);
             }).join(' ');
         }
 
+        function formatarNomeCompleto(texto) {
+            if (!texto) return '';
+            return texto.toUpperCase().trim().replace(/\s+/g, ' ');
+        }
+
         function formatarFrase(texto) {
             if (!texto) return '';
-            const limpo = texto.trim().toLowerCase();
+            const limpo = texto.trim().replace(/\s+/g, ' ').toLowerCase();
             return limpo.charAt(0).toUpperCase() + limpo.slice(1);
         }
 
-        // PREVIEW DE IMAGENS
+        function aplicarFormatacaoTempoReal(input, tipoFormatacao) {
+            const cursorPos = input.selectionStart;
+            const valorAtual = input.value;
+            
+            if (!valorAtual) return;
+            
+            let novoTexto = '';
+            
+            switch(tipoFormatacao) {
+                case 'all':
+                    novoTexto = valorAtual.toUpperCase();
+                    break;
+                case 'name':
+                    novoTexto = formatarNomePreservandoEspacos(valorAtual);
+                    break;
+                case 'text':
+                    if (valorAtual.length > 0) {
+                        novoTexto = valorAtual.charAt(0).toUpperCase() + valorAtual.slice(1).toLowerCase();
+                    }
+                    break;
+            }
+            
+            if (novoTexto !== valorAtual) {
+                input.value = novoTexto;
+                let novoCursorPos = Math.min(cursorPos, novoTexto.length);
+                input.setSelectionRange(novoCursorPos, novoCursorPos);
+            }
+        }
+
+        function formatarNomePreservandoEspacos(texto) {
+            if (!texto) return '';
+            
+            const preposicoes = ['de', 'do', 'da', 'dos', 'das', 'e', 'a', 'o', 'as', 'os'];
+            const palavras = texto.split(' ');
+            
+            const palavrasFormatadas = palavras.map((palavra, index) => {
+                if (palavra === '') return '';
+                
+                const palavraLower = palavra.toLowerCase();
+                
+                if (index === 0) {
+                    return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
+                }
+                
+                if (preposicoes.includes(palavraLower)) {
+                    return palavraLower;
+                }
+                
+                return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
+            });
+            
+            return palavrasFormatadas.join(' ');
+        }
+
+        // ============================================
+        // FUNÇÕES DE CARREGAMENTO DE DADOS
+        // ============================================
+        
+        async function carregarEstados() {
+            try {
+                const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+                const estados = await res.json();
+                
+                const selects = ['uf_natural', 'uf_endereco'];
+                selects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    estados.forEach(estado => {
+                        const option = document.createElement('option');
+                        option.value = estado.sigla;
+                        option.textContent = `${estado.sigla} - ${estado.nome}`;
+                        select.appendChild(option);
+                    });
+                });
+            } catch (err) {
+                console.error('Erro ao carregar estados:', err);
+            }
+        }
+
+        async function carregarCidadesNaturalidade() {
+            const uf = document.getElementById('uf_natural').value;
+            const cidadeSelect = document.getElementById('naturalidade');
+            
+            cidadeSelect.innerHTML = '<option value="">Carregando...</option>';
+            
+            if (!uf) {
+                cidadeSelect.innerHTML = '<option value="">Selecione o Estado primeiro</option>';
+                return;
+            }
+            
+            try {
+                const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`);
+                const cidades = await res.json();
+                
+                cidadeSelect.innerHTML = '<option value="">Selecione a Cidade</option>';
+                cidades.forEach(cidade => {
+                    const option = document.createElement('option');
+                    option.value = cidade.nome;
+                    option.textContent = cidade.nome;
+                    cidadeSelect.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Erro ao carregar cidades:', err);
+                cidadeSelect.innerHTML = '<option value="">Erro ao carregar cidades</option>';
+            }
+        }
+
+        async function carregarCidadesEndereco() {
+            const uf = document.getElementById('uf_endereco').value;
+            const cidadeSelect = document.getElementById('cidade');
+            
+            cidadeSelect.innerHTML = '<option value="">Carregando...</option>';
+            
+            if (!uf) {
+                cidadeSelect.innerHTML = '<option value="">Selecione o Estado primeiro</option>';
+                return;
+            }
+            
+            try {
+                const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`);
+                const cidades = await res.json();
+                
+                cidadeSelect.innerHTML = '<option value="">Selecione a Cidade</option>';
+                cidades.forEach(cidade => {
+                    const option = document.createElement('option');
+                    option.value = cidade.nome;
+                    option.textContent = cidade.nome;
+                    cidadeSelect.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Erro ao carregar cidades:', err);
+                cidadeSelect.innerHTML = '<option value="">Erro ao carregar cidades</option>';
+            }
+        }
+
+        // ============================================
+        // FUNÇÕES DE PREVIEW E DOCUMENTOS
+        // ============================================
+        
         function previewImg(input, imgId) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = document.getElementById(imgId);
+                    const container = img.parentElement;
                     img.src = e.target.result;
                     img.style.display = 'block';
+                    container.classList.add('has-image');
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        // ADICIONAR DOCUMENTO
         function adicionarDocumento(input) {
             const file = input.files[0];
             if (!file) return;
 
-            // Validação de tamanho (máximo 10MB)
             if (file.size > 10 * 1024 * 1024) {
                 Swal.fire('Arquivo muito grande', 'O arquivo deve ter no máximo 10MB', 'warning');
                 input.value = '';
@@ -328,7 +642,7 @@
                 const documento = {
                     tipo: tipo,
                     nome_arquivo: file.name,
-                    descricao: descricao,
+                    descricao: formatarFrase(descricao),
                     arquivo_base64: base64,
                     mime_type: file.type
                 };
@@ -336,11 +650,9 @@
                 documentosAnexados.push(documento);
                 renderizarDocumentos();
                 
-                // Limpa os campos
                 document.getElementById('descricao-documento').value = '';
                 input.value = '';
                 
-                // Feedback visual
                 Swal.fire({
                     icon: 'success',
                     title: 'Documento Adicionado',
@@ -354,7 +666,6 @@
             reader.readAsDataURL(file);
         }
 
-        // RENDERIZAR LISTA DE DOCUMENTOS
         function renderizarDocumentos() {
             const lista = document.getElementById('lista-documentos');
             const counter = document.getElementById('docs-counter');
@@ -397,7 +708,6 @@
             }).join('');
         }
 
-        // REMOVER DOCUMENTO
         function removerDocumento(index) {
             Swal.fire({
                 title: 'Remover Documento?',
@@ -423,7 +733,10 @@
             });
         }
 
+        // ============================================
         // SUBMIT DO FORMULÁRIO
+        // ============================================
+        
         document.getElementById('formCadastro').onsubmit = async (e) => {
             e.preventDefault();
             
@@ -438,24 +751,19 @@
             const formData = new FormData(form);
             const rawData = Object.fromEntries(formData.entries());
 
-            // FORMATAÇÃO
-            rawData.nome = formatarNome(rawData.nome);
+            rawData.nome = formatarNomeCompleto(rawData.nome);
             rawData.mae = formatarNome(rawData.mae);
             rawData.pai = formatarNome(rawData.pai);
-            rawData.naturalidade = formatarNome(rawData.naturalidade);
             rawData.rua = formatarNome(rawData.rua);
             rawData.bairro = formatarNome(rawData.bairro);
-            rawData.cidade = formatarNome(rawData.cidade);
             rawData.complemento = formatarFrase(rawData.complemento);
             rawData.obs_tacticas = formatarFrase(rawData.obs_tacticas);
             rawData.envolvimento_alvo = formatarFrase(rawData.envolvimento_alvo);
             rawData.detalhes_operacao = formatarFrase(rawData.detalhes_operacao);
 
-            // METADADOS
             rawData.modo = form.dataset.modo;
             rawData.idEdicao = form.dataset.idEdicao;
 
-            // FOTOS
             const getB64 = (id) => {
                 const src = document.getElementById(id).src;
                 return src && src.includes('base64') ? src.split(',')[1] : null;
@@ -464,7 +772,6 @@
             rawData.foto2 = getB64('prev2');
             rawData.foto3 = getB64('prev3');
 
-            // DOCUMENTOS
             rawData.documentos = documentosAnexados;
 
             try {
@@ -485,7 +792,7 @@
                         `,
                         icon: 'success',
                         confirmButtonText: 'OK'
-                    }).then(() => location.reload());
+                    }).then(() => limparFormulario());
                 } else {
                     Swal.fire('Erro', data.error || 'Erro ao salvar', 'error');
                 }
@@ -495,50 +802,144 @@
             }
         };
 
-        function resetarFormulario() { location.reload(); }
-        function abrirBuscaQR() { document.getElementById('modal-qr').style.display = 'flex'; }
+        // ============================================
+        // MODAL DE GERENCIAMENTO (CORRIGIDO Z-INDEX)
+        // ============================================
+        
+        function abrirModalGerenciar() {
+            document.getElementById('modal-gerenciar').style.display = 'flex';
+            document.getElementById('input-busca').focus();
+        }
 
-        async function buscarPorId() {
-            const id = document.getElementById('inputBuscaId').value;
-            if(!id) {
-                Swal.fire('Atenção', 'Digite um ID válido', 'warning');
+        function fecharModalGerenciar() {
+            document.getElementById('modal-gerenciar').style.display = 'none';
+            document.getElementById('input-busca').value = '';
+            document.getElementById('lista-resultados').innerHTML = '';
+        }
+
+        document.getElementById('input-busca').addEventListener('input', async function(e) {
+            clearTimeout(timeoutBusca);
+            
+            const termo = e.target.value.trim();
+            const lista = document.getElementById('lista-resultados');
+            
+            if (termo.length < 2) {
+                lista.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">Digite pelo menos 2 caracteres para buscar</p>';
                 return;
             }
+
+            lista.innerHTML = '<p style="text-align:center; color:#ffd700; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Buscando...</p>';
+
+            timeoutBusca = setTimeout(async () => {
+                try {
+                    const url = `${API_URL}/buscar-alvos?nome=${encodeURIComponent(termo)}`;
+                    console.log('🔍 Buscando:', url);
+                    
+                    const res = await fetch(url);
+                    
+                    if (!res.ok) {
+                        throw new Error(`HTTP ${res.status}`);
+                    }
+                    
+                    const alvos = await res.json();
+                    console.log('✅ Resultados:', alvos.length);
+                    
+                    if (!alvos || alvos.length === 0) {
+                        lista.innerHTML = '<p style="text-align:center; color:#999; padding:20px;"><i class="fas fa-exclamation-circle"></i> Nenhum resultado encontrado</p>';
+                        return;
+                    }
+                    
+                    lista.innerHTML = alvos.map(alvo => `
+                        <div class="result-item">
+                            <div class="result-info">
+                                <strong>${alvo.nome || 'Nome não informado'}</strong>
+                                <small>CPF: ${alvo.cpf || 'Não informado'} | ID: ${alvo.id}</small>
+                            </div>
+                            <div class="result-actions">
+                                <button class="btn-action btn-edit" onclick="carregarAlvo(${alvo.id})" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-action btn-qr" onclick="visualizarQR(${alvo.id})" title="QR Code">
+                                    <i class="fas fa-qrcode"></i>
+                                </button>
+                                <button class="btn-action btn-delete" onclick="excluirAlvo(${alvo.id}, '${(alvo.nome || '').replace(/'/g, "\\'")}');" title="Excluir">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (err) {
+                    console.error('💥 ERRO:', err);
+                    lista.innerHTML = `
+                        <div style="text-align:center; padding:20px; background: rgba(231,76,60,0.1); border-radius: 8px;">
+                            <i class="fas fa-times-circle" style="font-size: 48px; color: #e74c3c;"></i>
+                            <h3 style="color: #e74c3c;">Erro ao buscar dados</h3>
+                            <p style="color: #fff;">${err.message}</p>
+                        </div>
+                    `;
+                }
+            }, 500);
+        });
+
+        // CORREÇÃO: Fecha modal ANTES de abrir QR Code ou Exclusão
+        async function carregarAlvo(id) {
+            fecharModalGerenciar(); // FECHA O MODAL PRIMEIRO
             
-            Swal.fire({ title: 'Buscando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'Carregando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             
             try {
                 const res = await fetch(`${API_URL}/buscar-detalhes/${id}`);
                 const data = await res.json();
                 
-                if(data && data.id) {
+                if (data && data.id) {
                     const form = document.getElementById('formCadastro');
                     form.dataset.modo = 'edicao';
                     form.dataset.idEdicao = data.id;
                     document.getElementById('btnAcao').innerHTML = `<i class="fas fa-edit"></i> ATUALIZAR REGISTRO ID: ${data.id}`;
                     document.getElementById('btnAcao').style.background = "linear-gradient(135deg, #ff8c00, #ff6b00)";
                     
-                    // Preencher campos
                     Object.keys(data).forEach(key => {
                         const input = form.querySelector(`[name="${key}"]`);
-                        if(input && key !== 'data_nascimento') input.value = data[key] || '';
-                    });
-
-                    if(data.data_nascimento) {
-                        form.querySelector('[name="data_nascimento"]').value = data.data_nascimento.split('T')[0];
-                    }
-
-                    // Fotos
-                    ['foto1', 'foto2', 'foto3'].forEach((foto, i) => {
-                        if(data[foto]) {
-                            const img = document.getElementById(`prev${i+1}`);
-                            img.src = 'data:image/jpeg;base64,' + data[foto];
-                            img.style.display = 'block';
+                        if (input && key !== 'data_nascimento') {
+                            input.value = data[key] || '';
                         }
                     });
 
-                    // Documentos
-                    if(data.documentos && data.documentos.length > 0) {
+                    if (data.data_nascimento) {
+                        form.querySelector('[name="data_nascimento"]').value = data.data_nascimento.split('T')[0];
+                    }
+
+                    if (data.uf_natural) {
+                        document.getElementById('uf_natural').value = data.uf_natural;
+                        await carregarCidadesNaturalidade();
+                        setTimeout(() => {
+                            if (data.naturalidade) {
+                                document.getElementById('naturalidade').value = data.naturalidade;
+                            }
+                        }, 500);
+                    }
+
+                    if (data.uf_endereco) {
+                        document.getElementById('uf_endereco').value = data.uf_endereco;
+                        await carregarCidadesEndereco();
+                        setTimeout(() => {
+                            if (data.cidade) {
+                                document.getElementById('cidade').value = data.cidade;
+                            }
+                        }, 500);
+                    }
+
+                    ['foto1', 'foto2', 'foto3'].forEach((foto, i) => {
+                        if (data[foto]) {
+                            const img = document.getElementById(`prev${i+1}`);
+                            img.src = 'data:image/jpeg;base64,' + data[foto];
+                            img.style.display = 'block';
+                            img.parentElement.classList.add('has-image');
+                        }
+                    });
+
+                    documentosAnexados = [];
+                    if (data.documentos && data.documentos.length > 0) {
                         documentosAnexados = data.documentos.map(doc => ({
                             tipo: doc.tipo_documento,
                             nome_arquivo: doc.nome_arquivo,
@@ -549,14 +950,15 @@
                         renderizarDocumentos();
                     }
 
-                    document.getElementById('modal-qr').style.display = 'none';
                     Swal.fire({
                         icon: 'info', 
                         title: 'Modo Edição Ativado', 
-                        text: `Dados do ID ${data.id} carregados com sucesso`,
-                        timer: 3000
+                        text: `Dados do ID ${data.id} carregados`,
+                        timer: 3000,
+                        background: '#1a1a2e',
+                        color: '#fff'
                     });
-                    window.scrollTo(0, 0);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
                     Swal.fire('Aviso', 'Alvo não encontrado.', 'warning');
                 }
@@ -566,7 +968,146 @@
             }
         }
 
-        // Inicializa a lista de documentos vazia
+        // CORREÇÃO: Fecha modal ANTES de mostrar QR Code
+        async function visualizarQR(id) {
+            fecharModalGerenciar(); // FECHA O MODAL PRIMEIRO
+            
+            // Pequeno delay para garantir que o modal fechou
+            setTimeout(async () => {
+                try {
+                    const res = await fetch(`${API_URL}/buscar-detalhes/${id}`);
+                    const data = await res.json();
+                    
+                    if (data && data.id) {
+                        const qrText = `ID: ${data.id}\nNome: ${data.nome}\nCPF: ${data.cpf || 'N/A'}`;
+                        
+                        Swal.fire({
+                            title: `QR Code - ID ${data.id}`,
+                            html: `
+                                <div style="background: white; padding: 20px; border-radius: 10px; display: inline-block; margin: 20px 0;">
+                                    <div id="qrcode-temp"></div>
+                                </div>
+                                <p style="margin-top: 15px; color: #ffd700; font-weight: bold; font-size: 18px;">${data.nome}</p>
+                                <p style="color: #ccc;">CPF: ${data.cpf || 'Não informado'}</p>
+                            `,
+                            width: 450,
+                            background: '#1a1a2e',
+                            color: '#fff',
+                            didOpen: () => {
+                                new QRCode(document.getElementById("qrcode-temp"), {
+                                    text: qrText,
+                                    width: 200,
+                                    height: 200
+                                });
+                            }
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire('Erro', 'Não foi possível gerar o QR Code', 'error');
+                }
+            }, 100);
+        }
+
+        // CORREÇÃO: Fecha modal ANTES de confirmar exclusão
+        async function excluirAlvo(id, nome) {
+            fecharModalGerenciar(); // FECHA O MODAL PRIMEIRO
+            
+            // Pequeno delay para garantir que o modal fechou
+            setTimeout(async () => {
+                const result = await Swal.fire({
+                    title: 'Confirmar Exclusão',
+                    html: `Deseja realmente excluir o registro de:<br><strong style="color: #ffd700;">${nome}</strong><br>ID: ${id}`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e74c3c',
+                    confirmButtonText: 'Sim, excluir',
+                    cancelButtonText: 'Cancelar',
+                    background: '#1a1a2e',
+                    color: '#fff'
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        const res = await fetch(`${API_URL}/deletar-alvo/${id}`, {
+                            method: 'DELETE'
+                        });
+                        const data = await res.json();
+                        
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Excluído',
+                                text: 'Registro excluído com sucesso',
+                                background: '#1a1a2e',
+                                color: '#fff'
+                            });
+                        } else {
+                            Swal.fire('Erro', data.error || 'Erro ao excluir', 'error');
+                        }
+                    } catch (error) {
+                        Swal.fire('Erro', 'Falha na conexão', 'error');
+                    }
+                }
+            }, 100);
+        }
+
+        // ============================================
+        // INICIALIZAÇÃO
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarEstados();
+            VMasker(document.getElementById("cpf")).maskPattern("999.999.999-99");
+            
+            document.querySelectorAll('.capitalize-all').forEach(input => {
+                input.addEventListener('input', function() {
+                    aplicarFormatacaoTempoReal(this, 'all');
+                });
+                input.addEventListener('blur', function() {
+                    this.value = formatarNomeCompleto(this.value);
+                });
+            });
+            
+            document.querySelectorAll('.capitalize-name').forEach(input => {
+                input.addEventListener('input', function() {
+                    aplicarFormatacaoTempoReal(this, 'name');
+                });
+                input.addEventListener('blur', function() {
+                    this.value = formatarNome(this.value);
+                });
+            });
+
+            document.querySelectorAll('.capitalize-text').forEach(input => {
+                input.addEventListener('input', function() {
+                    aplicarFormatacaoTempoReal(this, 'text');
+                });
+                input.addEventListener('blur', function() {
+                    this.value = formatarFrase(this.value);
+                });
+            });
+        });
+
+        document.getElementById('cpf')?.addEventListener('blur', function() {
+            const cpf = this.value.replace(/\D/g, '');
+            if (cpf.length > 0 && cpf.length !== 11) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'CPF Inválido',
+                    text: 'O CPF deve conter 11 dígitos',
+                    toast: true,
+                    position: 'top-end',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                fecharModalGerenciar();
+            }
+        });
+
         renderizarDocumentos();
     </script>
 </body>
