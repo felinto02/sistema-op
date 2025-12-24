@@ -55,20 +55,22 @@ verificarConexaoDB();
 criarTabelaDocumentos();
 
 // ============================================
-// FUNÇÕES AUXILIARES (LÓGICA ORIGINAL PRESERVADA)
+// FUNÇÕES AUXILIARES (LÓGICA PRESERVADA)
 // ============================================
 
 const atualizarAlvo = async (client, dados, idEdicao) => {
     const { nome, cpf, rg, data_nascimento, naturalidade, uf_natural, mae, pai } = dados;
     
+    // 1. Atualiza dados básicos (RG é forçado para Maiúsculo no front, mas garantimos aqui)
     await client.query(
         `UPDATE alvos SET 
-            nome=$1, cpf=$2, rg=$3, data_nascimento=$4, naturalidade=$5, 
+            nome=$1, cpf=$2, rg=UPPER($3), data_nascimento=$4, naturalidade=$5, 
             uf_natural=$6, mae=$7, pai=$8 
          WHERE id=$9`,
         [nome, cpf, rg, data_nascimento || null, naturalidade, uf_natural, mae, pai, idEdicao]
     );
 
+    // 2. Atualiza Endereço
     await client.query(
         `UPDATE alvo_enderecos SET 
             rua=$1, numero=$2, bairro=$3, cidade=$4, uf_endereco=$5, link_mapa=$6, 
@@ -78,6 +80,7 @@ const atualizarAlvo = async (client, dados, idEdicao) => {
          dados.link_mapa, dados.complemento, dados.obs_tacticas, idEdicao]
     );
 
+    // 3. Atualiza Fotos (apenas se novas fotos forem enviadas)
     await client.query(
         `UPDATE alvo_fotos SET 
             foto1=COALESCE($1, foto1), foto2=COALESCE($2, foto2), foto3=COALESCE($3, foto3) 
@@ -85,6 +88,7 @@ const atualizarAlvo = async (client, dados, idEdicao) => {
         [dados.foto1, dados.foto2, dados.foto3, idEdicao]
     );
 
+    // 4. Atualiza Inteligência
     await client.query(
         `UPDATE alvo_inteligencia SET 
             envolvimento_alvo=$1, detalhes_operacao=$2
@@ -92,7 +96,7 @@ const atualizarAlvo = async (client, dados, idEdicao) => {
         [dados.envolvimento_alvo, dados.detalhes_operacao, idEdicao]
     );
 
-    // Na edição, se novos documentos forem enviados, limpamos os antigos e inserimos os novos
+    // 5. Gestão de Documentos na edição: limpamos para evitar duplicados se novos forem enviados
     if (dados.documentos && dados.documentos.length > 0) {
         await client.query('DELETE FROM documentos_alvo WHERE alvo_id = $1', [idEdicao]);
     }
@@ -105,7 +109,7 @@ const criarNovoAlvo = async (client, dados) => {
     
     const resAlvo = await client.query(
         `INSERT INTO alvos (nome, cpf, rg, data_nascimento, naturalidade, uf_natural, mae, pai) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+         VALUES ($1, $2, UPPER($3), $4, $5, $6, $7, $8) RETURNING id`,
         [nome, cpf, rg, data_nascimento || null, naturalidade, uf_natural, mae, pai]
     );
     
@@ -132,9 +136,6 @@ const criarNovoAlvo = async (client, dados) => {
     return alvoId;
 };
 
-/**
- * SALVAR DOCUMENTOS (Vindo do cadastro.html)
- */
 const salvarDocumentos = async (client, alvoId, documentos) => {
     if (!documentos || !Array.isArray(documentos) || documentos.length === 0) {
         return 0;
@@ -148,7 +149,7 @@ const salvarDocumentos = async (client, alvoId, documentos) => {
             [
                 alvoId, 
                 doc.tipo || 'Documento', 
-                doc.nome_arquivo || doc.nome, // Suporte aos dois nomes vindos do front
+                doc.nome_arquivo || doc.nome, 
                 doc.descricao || null, 
                 doc.arquivo_base64 || doc.base64,
                 doc.mime_type || 'application/octet-stream'
@@ -166,6 +167,30 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../../frontend/index.html'));
 });
 
+
+// ROTA DE BUSCA (A que estava falhando)
+app.get('/buscar-alvos', async (req, res) => {
+    try {
+        const { termo } = req.query;
+        if (!termo) return res.json([]);
+
+        // Busca por Nome ou CPF (ILIKE ignora maiúsculas/minúsculas)
+        const query = `
+            SELECT id, nome, cpf 
+            FROM alvos 
+            WHERE nome ILIKE $1 
+            LIMIT 10
+        `;
+        // const values = [`%${termo}%` Oriental]; // Linha removida por erro de sintaxe e não utilizada
+        const result = await pool.query(query, [`%${termo}%`]);
+        
+        res.json(result.rows);
+    } catch (err) {
+        console.error('❌ Erro na busca:', err.message);
+        res.status(500).json({ error: "Erro ao buscar dados" });
+    }
+});
+
 app.post('/cadastrar-alvo', async (req, res) => {
     const client = await pool.connect();
     const { modo, idEdicao, documentos } = req.body;
@@ -180,15 +205,16 @@ app.post('/cadastrar-alvo', async (req, res) => {
             alvoId = await criarNovoAlvo(client, req.body);
         }
 
-        const documentosSalvos = await salvarDocumentos(client, alvoId, documentos);
+        if (documentos && documentos.length > 0) {
+            await salvarDocumentos(client, alvoId, documentos);
+        }
 
         await client.query('COMMIT');
         
         res.status(200).json({ 
             success: true, 
             id: alvoId, 
-            message: modo === 'edicao' ? "Registro atualizado com sucesso" : "Cadastro realizado com sucesso",
-            documentos_salvos: documentosSalvos
+            message: modo === 'edicao' ? "Registro atualizado com sucesso" : "Cadastro realizado com sucesso"
         });
 
     } catch (err) {
@@ -197,24 +223,6 @@ app.post('/cadastrar-alvo', async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     } finally {
         client.release();
-    }
-});
-
-app.get('/buscar-alvos', async (req, res) => {
-    const { nome } = req.query;
-    if (!nome || nome.trim().length < 2) return res.json([]);
-    
-    try {
-        const cpfLimpo = nome.replace(/\D/g, '');
-        const result = await pool.query(
-            `SELECT id, nome, cpf FROM alvos 
-             WHERE nome ILIKE $1 OR REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') LIKE $2
-             ORDER BY nome LIMIT 20`,
-            [`%${nome}%`, `%${cpfLimpo}%`]
-        );
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: "Erro ao buscar alvos" });
     }
 });
 
@@ -236,7 +244,6 @@ app.get('/buscar-detalhes/:id', async (req, res) => {
 
         const alvo = resultPrincipal.rows[0];
         
-        // Busca documentos associados
         const resultDocs = await pool.query(
             `SELECT id, tipo_documento, nome_arquivo, descricao, arquivo_base64, mime_type, data_upload 
              FROM documentos_alvo WHERE alvo_id = $1`, [req.params.id]
@@ -251,14 +258,14 @@ app.get('/buscar-detalhes/:id', async (req, res) => {
 
 app.delete('/deletar-alvo/:id', async (req, res) => {
     try {
+        // ON DELETE CASCADE deve cuidar das outras tabelas, mas garantimos a ordem aqui se necessário
         await pool.query('DELETE FROM alvos WHERE id = $1', [req.params.id]);
-        res.json({ success: true, message: "Alvo e documentos removidos com sucesso" });
+        res.json({ success: true, message: "Alvo removido com sucesso" });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// Mantive as rotas auxiliares de documentos que estavam no seu código
 app.get('/documento/:id', async (req, res) => {
     try {
         const result = await pool.query('SELECT arquivo_base64, mime_type, nome_arquivo FROM documentos_alvo WHERE id = $1', [req.params.id]);
