@@ -1,4 +1,4 @@
-// 1. Pega o ID da URL (ex: index.html?id=123)
+// 1. Pega o ID da URL (ex: home.html?id=123)
 const urlParams = new URLSearchParams(window.location.search);
 const alvoId = urlParams.get('id');
 

@@ -10,105 +10,130 @@
         .home-icon {
             position: absolute; top: 25px; left: 20px;
             font-size: 24px; color: rgba(255,255,255,0.7);
-            text-decoration: none; z-index: 10;
+            text-decoration: none; z-index: 10; transition: color 0.3s;
+        }
+        .home-icon:hover { color: #ffd700; }
+
+        /* Section titles */
+        .section-label {
+            color: #ffd700; font-size: 12px; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 1px;
+            margin: 18px 16px 10px;
+            display: flex; align-items: center; gap: 8px;
+            border-bottom: 1px solid rgba(255,215,0,0.25);
+            padding-bottom: 8px;
         }
 
         /* Fotos do local */
-        .fotos-local {
+        .fotos-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin: 15px 20px;
+            padding: 0 16px;
         }
 
-        .foto-local-card {
-            border-radius: 10px;
+        .foto-card {
+            border-radius: 12px;
             overflow: hidden;
             aspect-ratio: 4/3;
             cursor: pointer;
             display: none;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            position: relative;
+            transition: transform 0.2s;
         }
 
-        .foto-local-card img {
+        .foto-card:active { transform: scale(0.97); }
+
+        .foto-card img {
             width: 100%; height: 100%;
             object-fit: cover; display: block;
         }
+
+        .foto-card .foto-label {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white; font-size: 11px; font-weight: bold;
+            padding: 16px 10px 7px; text-align: center;
+        }
+
+        .sem-fotos {
+            grid-column: span 2; text-align: center;
+            padding: 25px; color: rgba(255,255,255,0.3);
+            font-style: italic; font-size: 13px;
+        }
+        .sem-fotos i { font-size: 28px; display: block; margin-bottom: 8px; opacity: 0.4; }
+
+        /* Cards de endereço */
+        .info-lista {
+            padding: 0 16px 10px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .info-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px; padding: 14px 16px;
+            color: #1a1a1a;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+
+        .info-card .label {
+            font-size: 10px; font-weight: bold;
+            color: #3a0ca3; text-transform: uppercase;
+            letter-spacing: 0.8px; display: block; margin-bottom: 4px;
+        }
+
+        .info-card .label i { margin-right: 5px; }
+
+        .info-card .value {
+            font-size: 15px; font-weight: 600;
+            color: #111; word-break: break-word;
+        }
+
+        .info-row {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+
+        /* Card de alerta tático */
+        .info-card.tatico {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+        }
+
+        .info-card.tatico .label { color: #856404; }
+        .info-card.tatico .value { color: #333; }
 
         /* Modal foto */
         .modal-foto {
             display: none; position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.97); z-index: 9999;
+            background: #000; z-index: 9999;
             justify-content: center; align-items: center;
         }
 
         .modal-foto img { max-width: 100%; max-height: 92vh; object-fit: contain; }
 
-        .modal-foto-close {
+        .modal-close {
             position: absolute; top: 15px; right: 15px;
             background: rgba(255,255,255,0.15); border: none; color: white;
-            font-size: 20px; width: 44px; height: 44px; border-radius: 50%;
+            font-size: 18px; width: 40px; height: 40px; border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
 
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            padding: 20px;
-            text-align: left;
-        }
-
-        .info-grid div {
-            background-color: rgba(255,255,255,0.95);
-            color: #1a1a1a; padding: 12px; border-radius: 8px;
-        }
-
-        .label {
-            font-weight: bold; display: block;
-            font-size: 11px; color: #555;
-            text-transform: uppercase; margin-bottom: 3px;
-        }
-
-        .value { font-size: 14px; font-weight: 500; }
-
-        .obs-tactica {
-            grid-column: span 3;
-            background-color: #fff3cd !important;
-            border-left: 5px solid #ffc107;
-        }
-
-        .full-width { grid-column: span 3; }
-        .col-span-2 { grid-column: span 2; }
-
-        .section-label {
-            color: #ffd700; font-size: 13px; font-weight: bold;
-            text-transform: uppercase; letter-spacing: 1px;
-            margin: 15px 20px 8px;
-            display: flex; align-items: center; gap: 8px;
-            border-bottom: 1px solid rgba(255,215,0,0.3);
-            padding-bottom: 8px;
-        }
-
         .btn-voltar {
-            margin: 20px auto 40px;
+            margin: 18px auto 40px;
             display: inline-flex; align-items: center; gap: 10px;
             background: rgba(255,255,255,0.1); color: white;
-            padding: 12px 25px; border-radius: 30px;
-            text-decoration: none; font-weight: bold;
+            padding: 12px 28px; border-radius: 30px;
+            text-decoration: none; font-weight: bold; transition: background 0.2s;
         }
-
-        .sem-fotos {
-            grid-column: span 2; text-align: center;
-            padding: 20px; color: rgba(255,255,255,0.4);
-            font-style: italic; font-size: 13px;
-        }
+        .btn-voltar:active { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
-    <a href="index.html" id="home-link" class="home-icon">
+    <a href="home.html" id="home-link" class="home-icon">
         <i class="fas fa-home"></i>
     </a>
 
@@ -117,7 +142,7 @@
     </div>
 
     <div class="info-container">
-        <div class="subtitle">Localização e Inteligência</div>
+        <div class="subtitle">Localização e Endereço</div>
         <p class="nome-alvo">Alvo: <strong id="header-nome">Carregando...</strong></p>
     </div>
 
@@ -125,64 +150,76 @@
     <div class="section-label">
         <i class="fas fa-home"></i> Fotos do Local / Residência
     </div>
-    <div class="fotos-local">
-        <div class="foto-local-card" id="card-local1">
+    <div class="fotos-grid">
+        <div class="foto-card" id="card-local1">
             <img id="img-local1" alt="Local 1">
+            <div class="foto-label">Local 1</div>
         </div>
-        <div class="foto-local-card" id="card-local2">
+        <div class="foto-card" id="card-local2">
             <img id="img-local2" alt="Local 2">
+            <div class="foto-label">Local 2</div>
         </div>
         <div class="sem-fotos" id="sem-fotos-local" style="display:none;">
-            <i class="fas fa-home" style="font-size:24px; display:block; margin-bottom:8px; opacity:0.4;"></i>
+            <i class="fas fa-home"></i>
             Nenhuma foto do local cadastrada
         </div>
     </div>
 
     <!-- Dados do Endereço -->
-    <div class="section-label">
+    <div class="section-label" style="margin-top:22px;">
         <i class="fas fa-map-marker-alt"></i> Dados do Endereço
     </div>
-    <div class="info-grid">
-        <div class="full-width">
-            <span class="label">Rua/Logradouro:</span>
-            <span id="rua" class="value">...</span>
+    <div class="info-lista">
+
+        <div class="info-card">
+            <span class="label"><i class="fas fa-road"></i> Rua / Logradouro</span>
+            <span class="value" id="rua">...</span>
         </div>
-        <div>
-            <span class="label">Nº:</span>
-            <span id="numero" class="value">...</span>
+
+        <div class="info-row">
+            <div class="info-card">
+                <span class="label"><i class="fas fa-hashtag"></i> Número</span>
+                <span class="value" id="numero">...</span>
+            </div>
+            <div class="info-card">
+                <span class="label"><i class="fas fa-map"></i> Bairro</span>
+                <span class="value" id="bairro">...</span>
+            </div>
         </div>
-        <div class="col-span-2">
-            <span class="label">Bairro:</span>
-            <span id="bairro" class="value">...</span>
+
+        <div class="info-row">
+            <div class="info-card">
+                <span class="label"><i class="fas fa-city"></i> Cidade</span>
+                <span class="value" id="cidade">...</span>
+            </div>
+            <div class="info-card">
+                <span class="label"><i class="fas fa-flag"></i> UF</span>
+                <span class="value" id="uf">...</span>
+            </div>
         </div>
-        <div class="col-span-2">
-            <span class="label">Cidade:</span>
-            <span id="cidade" class="value">...</span>
+
+        <div class="info-card">
+            <span class="label"><i class="fas fa-thumbtack"></i> Ponto de Referência</span>
+            <span class="value" id="referencia">...</span>
         </div>
-        <div>
-            <span class="label">UF:</span>
-            <span id="uf" class="value">...</span>
-        </div>
-        <div class="full-width">
-            <span class="label">Ponto de Referência:</span>
-            <span id="referencia" class="value">...</span>
-        </div>
-        <div class="obs-tactica">
-            <span class="label" style="color:#856404;">
-                <i class="fas fa-exclamation-triangle"></i> Observações Táticas:
+
+        <div class="info-card tatico">
+            <span class="label">
+                <i class="fas fa-exclamation-triangle"></i> Observações Táticas
             </span>
-            <span id="obs-tactica" class="value">...</span>
+            <span class="value" id="obs-tactica">...</span>
         </div>
+
     </div>
 
     <!-- Modal foto -->
     <div class="modal-foto" id="modal-foto" onclick="fecharFoto()">
-        <button class="modal-foto-close"><i class="fas fa-times"></i></button>
+        <button class="modal-close"><i class="fas fa-times"></i></button>
         <img id="modal-foto-img" src="" alt="Foto">
     </div>
 
     <div style="text-align:center;">
-        <a href="index.html" id="link-voltar" class="btn-voltar">
+        <a href="home.html" id="link-voltar" class="btn-voltar">
             <i class="fas fa-arrow-left"></i> Voltar ao Início
         </a>
     </div>
@@ -195,33 +232,30 @@
             ? "http://localhost:3000" : window.location.origin;
 
         if (idAlvo) {
-            document.getElementById('link-voltar').href = `index.html?id=${idAlvo}`;
-            document.getElementById('home-link').href = `index.html?id=${idAlvo}`;
+            document.getElementById('link-voltar').href = `home.html?id=${idAlvo}`;
+            document.getElementById('home-link').href   = `home.html?id=${idAlvo}`;
 
             fetch(`${API_URL}/buscar-detalhes/${idAlvo}`)
                 .then(r => r.json())
                 .then(data => {
-                    document.getElementById('header-nome').textContent = data.nome;
-
-                    // Endereço — campos corrigidos com os nomes certos da API
-                    document.getElementById('rua').textContent       = data.rua        || 'Não informado';
-                    document.getElementById('numero').textContent    = data.numero     || 'S/N';
-                    document.getElementById('bairro').textContent    = data.bairro     || 'Não informado';
-                    document.getElementById('cidade').textContent    = data.cidade     || 'Não informado';
-                    document.getElementById('uf').textContent        = data.uf_endereco || '--';
-                    document.getElementById('referencia').textContent = data.complemento  || 'Nenhum ponto de referência';
-                    document.getElementById('obs-tactica').textContent = data.obs_tacticas || 'Nenhuma observação relevante.';
+                    document.getElementById('header-nome').textContent     = data.nome          || 'N/A';
+                    document.getElementById('rua').textContent             = data.rua           || 'Não informado';
+                    document.getElementById('numero').textContent          = data.numero        || 'S/N';
+                    document.getElementById('bairro').textContent          = data.bairro        || 'Não informado';
+                    document.getElementById('cidade').textContent          = data.cidade        || 'Não informado';
+                    document.getElementById('uf').textContent              = data.uf_endereco   || '--';
+                    document.getElementById('referencia').textContent      = data.complemento   || 'Não informado';
+                    document.getElementById('obs-tactica').textContent     = data.obs_tacticas  || 'Nenhuma observação relevante.';
 
                     // Fotos do local
                     let temFoto = false;
                     [['img-local1','card-local1', data.foto_local1],
-                     ['img-local2','card-local2', data.foto_local2]].forEach(([img, card, b64]) => {
+                     ['img-local2','card-local2', data.foto_local2]].forEach(([imgId, cardId, b64]) => {
                         if (b64 && b64.length > 50) {
-                            const el = document.getElementById(img);
-                            el.src = `data:image/jpeg;base64,${b64}`;
-                            const cardEl = document.getElementById(card);
-                            cardEl.style.display = 'block';
-                            cardEl.onclick = () => abrirFoto(`data:image/jpeg;base64,${b64}`);
+                            document.getElementById(imgId).src = `data:image/jpeg;base64,${b64}`;
+                            const card = document.getElementById(cardId);
+                            card.style.display = 'block';
+                            card.onclick = () => abrirFoto(`data:image/jpeg;base64,${b64}`);
                             temFoto = true;
                         }
                     });

@@ -14,114 +14,140 @@
         }
         .home-icon:hover { color: #ffd700; }
 
-        .section-label {
-            color: #ffd700;
-            font-size: 13px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 20px 20px 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid rgba(255,215,0,0.3);
-            padding-bottom: 8px;
-        }
-
-        /* Grid de fotos do alvo - 3 colunas */
-        .fotos-grid-3 {
+        /* Grid principal 2 colunas, última centralizada se ímpar */
+        .fotos-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            padding: 0 20px;
-        }
-
-        /* Grid de fotos do local - 2 colunas */
-        .fotos-grid-2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            padding: 0 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 16px;
         }
 
         .foto-card {
             position: relative;
-            border-radius: 10px;
+            border-radius: 14px;
             overflow: hidden;
             background: rgba(255,255,255,0.05);
             aspect-ratio: 3/4;
             cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.08);
             display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .foto-card-local {
+        /* Foto 1 ocupa largura toda se for a única ou estiver sozinha na linha */
+        .foto-card.destaque {
+            grid-column: span 2;
             aspect-ratio: 4/3;
+        }
+
+        .foto-card:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
 
         .foto-card img {
             width: 100%; height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.2s;
+            object-fit: cover; display: block;
         }
 
-        .foto-card:active img { transform: scale(0.97); }
+        .foto-card .foto-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            padding: 20px 12px 10px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
 
         .foto-card .foto-num {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.75));
-            color: white; font-size: 11px; font-weight: bold;
-            padding: 12px 8px 6px; text-align: center;
+            color: white; font-size: 12px; font-weight: bold;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .foto-card .foto-expand {
+            color: rgba(255,255,255,0.7); font-size: 14px;
+        }
+
+        /* Badge contador no header */
+        .counter-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #ffd700; color: #000;
+            font-size: 12px; font-weight: bold;
+            width: 22px; height: 22px; border-radius: 50%;
+            margin-left: 8px;
         }
 
         .sem-fotos {
-            text-align: center;
-            padding: 30px;
-            color: rgba(255,255,255,0.4);
-            font-style: italic;
-            font-size: 14px;
+            grid-column: span 2;
+            text-align: center; padding: 60px 20px;
+            color: rgba(255,255,255,0.3);
         }
 
-        .sem-fotos i { font-size: 36px; display: block; margin-bottom: 10px; }
+        .sem-fotos i { font-size: 52px; display: block; margin-bottom: 15px; }
+        .sem-fotos p { font-size: 14px; font-style: italic; }
 
         /* Modal foto tela cheia */
         .modal-foto {
-            display: none;
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.97);
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
             z-index: 9999;
-            justify-content: center;
-            align-items: center;
+            justify-content: center; align-items: center;
+            flex-direction: column;
         }
 
         .modal-foto img {
-            max-width: 100%; max-height: 92vh;
+            max-width: 100%; max-height: 88vh;
             object-fit: contain;
         }
 
-        .modal-foto-close {
-            position: absolute; top: 15px; right: 15px;
-            background: rgba(255,255,255,0.15);
-            border: none; color: white;
-            font-size: 20px; width: 44px; height: 44px;
+        .modal-topo {
+            position: absolute; top: 0; left: 0; right: 0;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(rgba(0,0,0,0.7), transparent);
+        }
+
+        .modal-titulo {
+            color: white; font-size: 14px; font-weight: bold;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.15); border: none; color: white;
+            font-size: 18px; width: 40px; height: 40px;
             border-radius: 50%; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
 
+        /* Navegação entre fotos */
+        .modal-nav {
+            position: absolute; bottom: 20px; left: 0; right: 0;
+            display: flex; justify-content: center; gap: 8px;
+        }
+
+        .nav-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(255,255,255,0.3); cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-dot.ativo { background: #ffd700; }
+
         .btn-voltar {
-            margin: 25px auto 40px;
+            margin: 10px auto 40px;
             display: inline-flex; align-items: center; gap: 10px;
             background: rgba(255,255,255,0.1); color: white;
-            padding: 12px 25px; border-radius: 30px;
+            padding: 12px 28px; border-radius: 30px;
             text-decoration: none; font-weight: bold;
+            transition: background 0.2s;
         }
+
+        .btn-voltar:active { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
-    <a href="index.html" id="home-link" class="home-icon">
+    <a href="home.html" id="home-link" class="home-icon">
         <i class="fas fa-home"></i>
     </a>
 
@@ -130,58 +156,58 @@
     </div>
 
     <div class="info-container">
-        <div class="subtitle">Galeria de Fotos</div>
+        <div class="subtitle">
+            <i class="fas fa-camera"></i> Galeria de Fotos
+            <span class="counter-badge" id="total-fotos">0</span>
+        </div>
         <p class="nome-alvo">Alvo: <strong id="nome-alvo">Carregando...</strong></p>
     </div>
 
-    <!-- Fotos do Alvo -->
-    <div class="section-label">
-        <i class="fas fa-user"></i> Fotos do Alvo
-    </div>
-    <div class="fotos-grid-3" id="grid-alvo">
+    <div class="fotos-grid" id="fotos-grid">
         <div class="foto-card" id="card-foto1">
             <img id="img-foto1" alt="Foto 1">
-            <div class="foto-num">Foto 1</div>
+            <div class="foto-overlay">
+                <span class="foto-num"><i class="fas fa-user"></i> Foto 1</span>
+                <i class="fas fa-expand foto-expand"></i>
+            </div>
         </div>
         <div class="foto-card" id="card-foto2">
             <img id="img-foto2" alt="Foto 2">
-            <div class="foto-num">Foto 2</div>
+            <div class="foto-overlay">
+                <span class="foto-num"><i class="fas fa-user"></i> Foto 2</span>
+                <i class="fas fa-expand foto-expand"></i>
+            </div>
         </div>
         <div class="foto-card" id="card-foto3">
             <img id="img-foto3" alt="Foto 3">
-            <div class="foto-num">Foto 3</div>
+            <div class="foto-overlay">
+                <span class="foto-num"><i class="fas fa-user"></i> Foto 3</span>
+                <i class="fas fa-expand foto-expand"></i>
+            </div>
         </div>
-        <div class="sem-fotos" id="sem-fotos-alvo" style="grid-column:span 3; display:none;">
-            <i class="fas fa-camera-slash"></i> Nenhuma foto cadastrada
-        </div>
-    </div>
-
-    <!-- Fotos do Local -->
-    <div class="section-label" style="margin-top: 25px;">
-        <i class="fas fa-home"></i> Fotos do Local / Residência
-    </div>
-    <div class="fotos-grid-2" id="grid-local">
-        <div class="foto-card foto-card-local" id="card-local1">
-            <img id="img-local1" alt="Local 1">
-            <div class="foto-num">Local 1</div>
-        </div>
-        <div class="foto-card foto-card-local" id="card-local2">
-            <img id="img-local2" alt="Local 2">
-            <div class="foto-num">Local 2</div>
-        </div>
-        <div class="sem-fotos" id="sem-fotos-local" style="grid-column:span 2; display:none;">
-            <i class="fas fa-home"></i> Nenhuma foto do local cadastrada
+        <div class="sem-fotos" id="sem-fotos" style="display:none;">
+            <i class="fas fa-camera-slash"></i>
+            <p>Nenhuma foto cadastrada para este alvo</p>
         </div>
     </div>
 
     <!-- Modal tela cheia -->
-    <div class="modal-foto" id="modal-foto" onclick="fecharFoto()">
-        <button class="modal-foto-close"><i class="fas fa-times"></i></button>
-        <img id="modal-foto-img" src="" alt="Foto">
+    <div class="modal-foto" id="modal-foto">
+        <div class="modal-topo">
+            <div class="modal-titulo">
+                <i class="fas fa-camera"></i>
+                <span id="modal-titulo-txt">Foto</span>
+            </div>
+            <button class="modal-close" onclick="fecharFoto()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <img id="modal-foto-img" src="" alt="Foto" onclick="proximaFoto()">
+        <div class="modal-nav" id="modal-nav"></div>
     </div>
 
     <div style="text-align:center;">
-        <a href="index.html" id="link-voltar" class="btn-voltar">
+        <a href="home.html" id="link-voltar" class="btn-voltar">
             <i class="fas fa-arrow-left"></i> Voltar ao Início
         </a>
     </div>
@@ -193,54 +219,84 @@
         const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
             ? "http://localhost:3000" : window.location.origin;
 
+        // Fotos carregadas para navegação no modal
+        let fotosCarregadas = [];
+        let fotoAtual = 0;
+
         if (idAlvo) {
-            document.getElementById('link-voltar').href = `index.html?id=${idAlvo}`;
-            document.getElementById('home-link').href = `index.html?id=${idAlvo}`;
+            document.getElementById('link-voltar').href = `home.html?id=${idAlvo}`;
+            document.getElementById('home-link').href = `home.html?id=${idAlvo}`;
 
             fetch(`${API_URL}/buscar-detalhes/${idAlvo}`)
                 .then(r => r.json())
                 .then(data => {
                     document.getElementById('nome-alvo').textContent = data.nome;
 
-                    // Fotos do alvo
-                    let temFotoAlvo = false;
-                    [['img-foto1','card-foto1',data.foto1],
-                     ['img-foto2','card-foto2',data.foto2],
-                     ['img-foto3','card-foto3',data.foto3]].forEach(([img, card, b64]) => {
-                        if (b64 && b64.length > 50) {
-                            const el = document.getElementById(img);
-                            el.src = `data:image/jpeg;base64,${b64}`;
-                            const cardEl = document.getElementById(card);
-                            cardEl.style.display = 'block';
-                            cardEl.onclick = () => abrirFoto(`data:image/jpeg;base64,${b64}`);
-                            temFotoAlvo = true;
-                        }
-                    });
-                    if (!temFotoAlvo) document.getElementById('sem-fotos-alvo').style.display = 'block';
+                    const fotos = [
+                        { id: 'card-foto1', img: 'img-foto1', b64: data.foto1, label: 'Foto 1' },
+                        { id: 'card-foto2', img: 'img-foto2', b64: data.foto2, label: 'Foto 2' },
+                        { id: 'card-foto3', img: 'img-foto3', b64: data.foto3, label: 'Foto 3' },
+                    ];
 
-                    // Fotos do local
-                    let temFotoLocal = false;
-                    [['img-local1','card-local1',data.foto_local1],
-                     ['img-local2','card-local2',data.foto_local2]].forEach(([img, card, b64]) => {
-                        if (b64 && b64.length > 50) {
-                            const el = document.getElementById(img);
-                            el.src = `data:image/jpeg;base64,${b64}`;
-                            const cardEl = document.getElementById(card);
-                            cardEl.style.display = 'block';
-                            cardEl.onclick = () => abrirFoto(`data:image/jpeg;base64,${b64}`);
-                            temFotoLocal = true;
+                    fotos.forEach(f => {
+                        if (f.b64 && f.b64.length > 50) {
+                            const src = `data:image/jpeg;base64,${f.b64}`;
+                            document.getElementById(f.img).src = src;
+                            const card = document.getElementById(f.id);
+                            card.style.display = 'block';
+                            const idx = fotosCarregadas.length;
+                            fotosCarregadas.push({ src, label: f.label });
+                            card.onclick = () => abrirFoto(idx);
                         }
                     });
-                    if (!temFotoLocal) document.getElementById('sem-fotos-local').style.display = 'block';
+
+                    // Se só 1 foto, deixa ela em destaque (largura total)
+                    if (fotosCarregadas.length === 1) {
+                        document.querySelector('.foto-card[style*="block"]').classList.add('destaque');
+                    }
+
+                    document.getElementById('total-fotos').textContent = fotosCarregadas.length;
+
+                    if (fotosCarregadas.length === 0) {
+                        document.getElementById('sem-fotos').style.display = 'block';
+                        document.getElementById('total-fotos').style.display = 'none';
+                    }
+
+                    // Monta dots de navegação
+                    const nav = document.getElementById('modal-nav');
+                    nav.innerHTML = fotosCarregadas.map((_, i) =>
+                        `<div class="nav-dot" id="dot-${i}" onclick="irParaFoto(${i})"></div>`
+                    ).join('');
                 })
                 .catch(() => {
                     document.getElementById('nome-alvo').textContent = "Erro de conexão";
                 });
         }
 
-        function abrirFoto(src) {
-            document.getElementById('modal-foto-img').src = src;
+        function abrirFoto(idx) {
+            fotoAtual = idx;
+            atualizarModal();
             document.getElementById('modal-foto').style.display = 'flex';
+        }
+
+        function atualizarModal() {
+            const foto = fotosCarregadas[fotoAtual];
+            document.getElementById('modal-foto-img').src = foto.src;
+            document.getElementById('modal-titulo-txt').textContent = foto.label;
+            document.querySelectorAll('.nav-dot').forEach((d, i) => {
+                d.classList.toggle('ativo', i === fotoAtual);
+            });
+        }
+
+        function proximaFoto() {
+            if (fotosCarregadas.length <= 1) return;
+            fotoAtual = (fotoAtual + 1) % fotosCarregadas.length;
+            atualizarModal();
+        }
+
+        function irParaFoto(idx) {
+            fotoAtual = idx;
+            atualizarModal();
         }
 
         function fecharFoto() {
@@ -248,7 +304,14 @@
             document.getElementById('modal-foto-img').src = '';
         }
 
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharFoto(); });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') fecharFoto();
+            if (e.key === 'ArrowRight') proximaFoto();
+            if (e.key === 'ArrowLeft') {
+                fotoAtual = (fotoAtual - 1 + fotosCarregadas.length) % fotosCarregadas.length;
+                atualizarModal();
+            }
+        });
     </script>
 </body>
 </html>

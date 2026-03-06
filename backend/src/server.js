@@ -212,7 +212,7 @@ const salvarDocumentos = async (client, alvoId, documentos) => {
 // ============================================
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../frontend/index.html'));
+    res.sendFile(path.join(__dirname, '../../frontend/home.html'));
 });
 
 // Busca de alvos

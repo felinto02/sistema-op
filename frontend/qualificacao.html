@@ -11,70 +11,115 @@
             position: absolute; top: 25px; left: 20px;
             font-size: 24px; color: rgba(255,255,255,0.7);
             text-decoration: none; z-index: 10;
+            transition: color 0.3s;
+        }
+        .home-icon:hover { color: #ffd700; }
+
+        /* Perfil */
+        .perfil-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 20px 20px;
+            gap: 12px;
         }
 
-        /* Foto principal do alvo */
-        .foto-principal {
-            width: 120px; height: 120px;
+        .foto-circulo {
+            width: 110px; height: 110px;
             border-radius: 50%;
             overflow: hidden;
-            margin: 15px auto;
             border: 3px solid #ffd700;
-            display: none;
-            box-shadow: 0 4px 15px rgba(255,215,0,0.3);
-        }
-
-        .foto-principal img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-        }
-
-        .foto-placeholder {
-            width: 120px; height: 120px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            margin: 15px auto;
+            box-shadow: 0 0 20px rgba(255,215,0,0.25);
+            background: rgba(255,255,255,0.07);
             display: flex; align-items: center; justify-content: center;
-            border: 2px dashed rgba(255,255,255,0.2);
-            color: rgba(255,255,255,0.3);
-            font-size: 40px;
+            flex-shrink: 0;
         }
 
-        .info-grid {
+        .foto-circulo img {
+            width: 100%; height: 100%; object-fit: cover;
+            display: none;
+        }
+
+        .foto-circulo i {
+            font-size: 42px;
+            color: rgba(255,255,255,0.25);
+        }
+
+        .nome-destaque {
+            color: #ffd700;
+            font-size: 17px;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        /* Cards de info */
+        .info-lista {
+            padding: 0 16px 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .info-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #1a1a1a;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+
+        .info-card .label {
+            font-size: 10px;
+            font-weight: bold;
+            color: #3a0ca3;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .info-card .label i {
+            margin-right: 5px;
+            color: #3a0ca3;
+        }
+
+        .info-card .value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #111;
+            word-break: break-word;
+        }
+
+        /* Row de 2 cards lado a lado */
+        .info-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Row de 3 cards */
+        .info-row-3 {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px; padding: 20px; text-align: left;
+            gap: 10px;
         }
-
-        .info-grid div {
-            background-color: rgba(255,255,255,0.95);
-            color: #1a1a1a; padding: 12px; border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .label {
-            font-weight: bold; display: block;
-            font-size: 12px; color: #333;
-            text-transform: uppercase; margin-bottom: 4px;
-        }
-
-        .value { font-size: 15px; word-break: break-word; }
-
-        .full-width, .col-span-3 { grid-column: span 3; }
-        .col-span-2 { grid-column: span 2; }
 
         .btn-voltar {
-            margin: 20px auto 40px;
+            margin: 5px auto 40px;
             display: inline-flex; align-items: center; gap: 10px;
             background: rgba(255,255,255,0.1); color: white;
-            padding: 12px 25px; border-radius: 30px;
+            padding: 12px 28px; border-radius: 30px;
             text-decoration: none; font-weight: bold;
+            transition: background 0.2s;
         }
+
+        .btn-voltar:active { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
-    <a href="index.html" id="home-link" class="home-icon">
+    <a href="home.html" id="home-link" class="home-icon">
         <i class="fas fa-home"></i>
     </a>
 
@@ -86,54 +131,64 @@
         <div class="subtitle">Qualificação do Alvo</div>
     </div>
 
-    <!-- Foto principal do alvo (primeira disponível) -->
-    <div id="foto-principal-container" style="text-align:center;">
-        <div class="foto-placeholder" id="foto-placeholder">
-            <i class="fas fa-user"></i>
-        </div>
-        <div class="foto-principal" id="foto-principal">
+    <!-- Foto + Nome -->
+    <div class="perfil-box">
+        <div class="foto-circulo" id="foto-circulo">
+            <i class="fas fa-user" id="foto-icon"></i>
             <img id="img-principal" alt="Foto do Alvo">
         </div>
-        <p style="color:#ffd700; font-weight:bold; margin:5px 0 0; font-size:16px;" id="header-nome">Carregando...</p>
+        <div class="nome-destaque" id="header-nome">Carregando...</div>
     </div>
 
-    <div class="info-grid">
-        <div class="col-span-3">
-            <span class="label">Nome Completo:</span>
-            <span id="nome" class="value">...</span>
+    <!-- Dados -->
+    <div class="info-lista">
+
+        <div class="info-card">
+            <span class="label"><i class="fas fa-id-badge"></i> Nome Completo</span>
+            <span class="value" id="nome">...</span>
         </div>
-        <div class="col-span-3">
-            <span class="label">Mãe:</span>
-            <span id="nome-mae" class="value">...</span>
+
+        <div class="info-card">
+            <span class="label"><i class="fas fa-female"></i> Nome da Mãe</span>
+            <span class="value" id="nome-mae">...</span>
         </div>
-        <div class="col-span-3">
-            <span class="label">Pai:</span>
-            <span id="nome-pai" class="value">...</span>
+
+        <div class="info-card">
+            <span class="label"><i class="fas fa-male"></i> Nome do Pai</span>
+            <span class="value" id="nome-pai">...</span>
         </div>
-        <div>
-            <span class="label">D.T. Nasc.:</span>
-            <span id="data-nascimento" class="value">...</span>
+
+        <div class="info-row">
+            <div class="info-card">
+                <span class="label"><i class="fas fa-calendar"></i> Nascimento</span>
+                <span class="value" id="data-nascimento">...</span>
+            </div>
+            <div class="info-card">
+                <span class="label"><i class="fas fa-map-marker-alt"></i> Naturalidade</span>
+                <span class="value" id="natural">...</span>
+            </div>
         </div>
-        <div>
-            <span class="label">Natural:</span>
-            <span id="natural" class="value">...</span>
+
+        <div class="info-row">
+            <div class="info-card">
+                <span class="label"><i class="fas fa-flag"></i> UF</span>
+                <span class="value" id="uf">...</span>
+            </div>
+            <div class="info-card">
+                <span class="label"><i class="fas fa-id-card"></i> RG</span>
+                <span class="value" id="rg">...</span>
+            </div>
         </div>
-        <div>
-            <span class="label">UF:</span>
-            <span id="uf" class="value">...</span>
+
+        <div class="info-card">
+            <span class="label"><i class="fas fa-fingerprint"></i> CPF</span>
+            <span class="value" id="cpf">...</span>
         </div>
-        <div class="col-span-2">
-            <span class="label">CPF:</span>
-            <span id="cpf" class="value">...</span>
-        </div>
-        <div>
-            <span class="label">RG:</span>
-            <span id="rg" class="value">...</span>
-        </div>
+
     </div>
 
     <div style="text-align:center;">
-        <a href="index.html" id="link-voltar" class="btn-voltar">
+        <a href="home.html" id="link-voltar" class="btn-voltar">
             <i class="fas fa-arrow-left"></i> Voltar ao Início
         </a>
     </div>
@@ -146,32 +201,33 @@
             ? "http://localhost:3000" : window.location.origin;
 
         if (idAlvo) {
-            document.getElementById('link-voltar').href = `index.html?id=${idAlvo}`;
-            document.getElementById('home-link').href = `index.html?id=${idAlvo}`;
+            document.getElementById('link-voltar').href = `home.html?id=${idAlvo}`;
+            document.getElementById('home-link').href   = `home.html?id=${idAlvo}`;
 
             fetch(`${API_URL}/buscar-detalhes/${idAlvo}`)
                 .then(r => r.json())
                 .then(data => {
-                    document.getElementById('header-nome').textContent = data.nome || 'N/A';
-                    document.getElementById('nome').textContent          = data.nome         || 'Não informado';
-                    document.getElementById('nome-mae').textContent      = data.mae          || 'Não informado';
-                    document.getElementById('nome-pai').textContent      = data.pai          || 'Não informado';
-                    document.getElementById('cpf').textContent           = data.cpf          || 'Não informado';
-                    document.getElementById('rg').textContent            = data.rg           || 'Não informado';
-                    document.getElementById('natural').textContent       = data.naturalidade || 'Não informado';
-                    document.getElementById('uf').textContent            = data.uf_natural   || '--';
+                    document.getElementById('header-nome').textContent  = data.nome         || 'N/A';
+                    document.getElementById('nome').textContent         = data.nome         || 'Não informado';
+                    document.getElementById('nome-mae').textContent     = data.mae          || 'Não informado';
+                    document.getElementById('nome-pai').textContent     = data.pai          || 'Não informado';
+                    document.getElementById('cpf').textContent          = data.cpf          || 'Não informado';
+                    document.getElementById('rg').textContent           = data.rg           || 'Não informado';
+                    document.getElementById('natural').textContent      = data.naturalidade || 'Não informado';
+                    document.getElementById('uf').textContent           = data.uf_natural   || '--';
 
                     if (data.data_nascimento) {
                         document.getElementById('data-nascimento').textContent =
-                            new Date(data.data_nascimento).toLocaleDateString('pt-BR', {timeZone:'UTC'});
+                            new Date(data.data_nascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
                     }
 
-                    // Foto principal — usa a primeira foto disponível
+                    // Foto principal
                     const fotoB64 = data.foto1 || data.foto2 || data.foto3;
                     if (fotoB64 && fotoB64.length > 50) {
-                        document.getElementById('img-principal').src = `data:image/jpeg;base64,${fotoB64}`;
-                        document.getElementById('foto-principal').style.display = 'block';
-                        document.getElementById('foto-placeholder').style.display = 'none';
+                        const img = document.getElementById('img-principal');
+                        img.src = `data:image/jpeg;base64,${fotoB64}`;
+                        img.style.display = 'block';
+                        document.getElementById('foto-icon').style.display = 'none';
                     }
                 })
                 .catch(err => {

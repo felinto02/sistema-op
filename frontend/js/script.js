@@ -778,7 +778,7 @@ async function visualizarQR(id) {
                     confirmButtonColor: '#3498db',
                     didOpen: () => {
                         const elementoQR = document.getElementById("qrcode-render");
-                        const qrLink = `${window.location.origin}/index.html?id=${data.id}`;
+                        const qrLink = `${window.location.origin}/home.html?id=${data.id}`;
                         
                         new QRCode(elementoQR, {
                             text: qrLink,
@@ -804,7 +804,7 @@ async function visualizarQR(id) {
 
 function baixarQRCode(nomeAlvo, idAlvo) {
     try {
-        const qrContainer = document.getElementById("qrcode-container");
+        const qrContainer = document.getElementById("qrcode-render");
         const canvas = qrContainer?.querySelector('canvas');
         
         if (!canvas) {
