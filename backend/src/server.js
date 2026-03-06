@@ -1,3 +1,6 @@
+const { setDefaultResultOrder } = require('dns');
+setDefaultResultOrder('ipv4first');
+
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
@@ -50,18 +53,16 @@ const criarTabelaDocumentos = async () => {
     }
 };
 
-// Inicialização
 verificarConexaoDB();
 criarTabelaDocumentos();
 
 // ============================================
-// FUNÇÕES AUXILIARES (LÓGICA PRESERVADA)
+// FUNÇÕES AUXILIARES
 // ============================================
 
 const atualizarAlvo = async (client, dados, idEdicao) => {
     const { nome, cpf, rg, data_nascimento, naturalidade, uf_natural, mae, pai } = dados;
-    
-    // 1. Atualiza dados básicos (RG é forçado para Maiúsculo no front, mas garantimos aqui)
+
     await client.query(
         `UPDATE alvos SET 
             nome=$1, cpf=$2, rg=UPPER($3), data_nascimento=$4, naturalidade=$5, 
@@ -70,17 +71,15 @@ const atualizarAlvo = async (client, dados, idEdicao) => {
         [nome, cpf, rg, data_nascimento || null, naturalidade, uf_natural, mae, pai, idEdicao]
     );
 
-    // 2. Atualiza Endereço
     await client.query(
         `UPDATE alvo_enderecos SET 
             rua=$1, numero=$2, bairro=$3, cidade=$4, uf_endereco=$5, link_mapa=$6, 
             ponto_referencia=$7, observacoes_tacticas=$8 
          WHERE alvo_id=$9`,
-        [dados.rua, dados.numero, dados.bairro, dados.cidade, dados.uf_endereco, 
+        [dados.rua, dados.numero, dados.bairro, dados.cidade, dados.uf_endereco,
          dados.link_mapa, dados.complemento, dados.obs_tacticas, idEdicao]
     );
 
-    // 3. Atualiza Fotos (apenas se novas fotos forem enviadas)
     await client.query(
         `UPDATE alvo_fotos SET 
             foto1=COALESCE($1, foto1), foto2=COALESCE($2, foto2), foto3=COALESCE($3, foto3) 
@@ -88,7 +87,6 @@ const atualizarAlvo = async (client, dados, idEdicao) => {
         [dados.foto1, dados.foto2, dados.foto3, idEdicao]
     );
 
-    // 4. Atualiza Inteligência
     await client.query(
         `UPDATE alvo_inteligencia SET 
             envolvimento_alvo=$1, detalhes_operacao=$2
@@ -96,7 +94,6 @@ const atualizarAlvo = async (client, dados, idEdicao) => {
         [dados.envolvimento_alvo, dados.detalhes_operacao, idEdicao]
     );
 
-    // 5. Gestão de Documentos na edição: limpamos para evitar duplicados se novos forem enviados
     if (dados.documentos && dados.documentos.length > 0) {
         await client.query('DELETE FROM documentos_alvo WHERE alvo_id = $1', [idEdicao]);
     }
@@ -106,19 +103,19 @@ const atualizarAlvo = async (client, dados, idEdicao) => {
 
 const criarNovoAlvo = async (client, dados) => {
     const { nome, cpf, rg, data_nascimento, naturalidade, uf_natural, mae, pai } = dados;
-    
+
     const resAlvo = await client.query(
         `INSERT INTO alvos (nome, cpf, rg, data_nascimento, naturalidade, uf_natural, mae, pai) 
          VALUES ($1, $2, UPPER($3), $4, $5, $6, $7, $8) RETURNING id`,
         [nome, cpf, rg, data_nascimento || null, naturalidade, uf_natural, mae, pai]
     );
-    
+
     const alvoId = resAlvo.rows[0].id;
 
     await client.query(
         `INSERT INTO alvo_enderecos (alvo_id, rua, numero, bairro, cidade, uf_endereco, link_mapa, ponto_referencia, observacoes_tacticas) 
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-        [alvoId, dados.rua, dados.numero, dados.bairro, dados.cidade, dados.uf_endereco, 
+        [alvoId, dados.rua, dados.numero, dados.bairro, dados.cidade, dados.uf_endereco,
          dados.link_mapa, dados.complemento, dados.obs_tacticas]
     );
 
@@ -137,23 +134,16 @@ const criarNovoAlvo = async (client, dados) => {
 };
 
 const salvarDocumentos = async (client, alvoId, documentos) => {
-    if (!documentos || !Array.isArray(documentos) || documentos.length === 0) {
-        return 0;
-    }
+    if (!documentos || !Array.isArray(documentos) || documentos.length === 0) return 0;
 
     for (const doc of documentos) {
         await client.query(
             `INSERT INTO documentos_alvo 
                 (alvo_id, tipo_documento, nome_arquivo, descricao, arquivo_base64, mime_type) 
              VALUES ($1, $2, $3, $4, $5, $6)`,
-            [
-                alvoId, 
-                doc.tipo || 'Documento', 
-                doc.nome_arquivo || doc.nome, 
-                doc.descricao || null, 
-                doc.arquivo_base64 || doc.base64,
-                doc.mime_type || 'application/octet-stream'
-            ]
+            [alvoId, doc.tipo || 'Documento', doc.nome_arquivo || doc.nome,
+             doc.descricao || null, doc.arquivo_base64 || doc.base64,
+             doc.mime_type || 'application/octet-stream']
         );
     }
     return documentos.length;
@@ -167,23 +157,15 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../../frontend/index.html'));
 });
 
-
-// ROTA DE BUSCA (A que estava falhando)
 app.get('/buscar-alvos', async (req, res) => {
     try {
         const { termo } = req.query;
         if (!termo) return res.json([]);
 
-        // Busca por Nome ou CPF (ILIKE ignora maiúsculas/minúsculas)
-        const query = `
-            SELECT id, nome, cpf 
-            FROM alvos 
-            WHERE nome ILIKE $1 
-            LIMIT 10
-        `;
-        // const values = [`%${termo}%` Oriental]; // Linha removida por erro de sintaxe e não utilizada
-        const result = await pool.query(query, [`%${termo}%`]);
-        
+        const result = await pool.query(
+            `SELECT id, nome, cpf FROM alvos WHERE nome ILIKE $1 LIMIT 10`,
+            [`%${termo}%`]
+        );
         res.json(result.rows);
     } catch (err) {
         console.error('❌ Erro na busca:', err.message);
@@ -210,10 +192,10 @@ app.post('/cadastrar-alvo', async (req, res) => {
         }
 
         await client.query('COMMIT');
-        
-        res.status(200).json({ 
-            success: true, 
-            id: alvoId, 
+
+        res.status(200).json({
+            success: true,
+            id: alvoId,
             message: modo === 'edicao' ? "Registro atualizado com sucesso" : "Cadastro realizado com sucesso"
         });
 
@@ -228,7 +210,7 @@ app.post('/cadastrar-alvo', async (req, res) => {
 
 app.get('/buscar-detalhes/:id', async (req, res) => {
     try {
-        const queryPrincipal = `
+        const resultPrincipal = await pool.query(`
             SELECT a.*, e.rua, e.numero, e.bairro, e.cidade, e.uf_endereco, e.link_mapa, 
                    e.ponto_referencia as complemento, e.observacoes_tacticas as obs_tacticas,
                    i.envolvimento_alvo, i.detalhes_operacao,
@@ -237,13 +219,13 @@ app.get('/buscar-detalhes/:id', async (req, res) => {
             LEFT JOIN alvo_enderecos e ON a.id = e.alvo_id
             LEFT JOIN alvo_inteligencia i ON a.id = i.alvo_id
             LEFT JOIN alvo_fotos f ON a.id = f.alvo_id
-            WHERE a.id = $1`;
-        
-        const resultPrincipal = await pool.query(queryPrincipal, [req.params.id]);
+            WHERE a.id = $1`, [req.params.id]
+        );
+
         if (resultPrincipal.rows.length === 0) return res.status(404).json({ error: "Não encontrado" });
 
         const alvo = resultPrincipal.rows[0];
-        
+
         const resultDocs = await pool.query(
             `SELECT id, tipo_documento, nome_arquivo, descricao, arquivo_base64, mime_type, data_upload 
              FROM documentos_alvo WHERE alvo_id = $1`, [req.params.id]
@@ -258,7 +240,6 @@ app.get('/buscar-detalhes/:id', async (req, res) => {
 
 app.delete('/deletar-alvo/:id', async (req, res) => {
     try {
-        // ON DELETE CASCADE deve cuidar das outras tabelas, mas garantimos a ordem aqui se necessário
         await pool.query('DELETE FROM alvos WHERE id = $1', [req.params.id]);
         res.json({ success: true, message: "Alvo removido com sucesso" });
     } catch (err) {
@@ -268,7 +249,10 @@ app.delete('/deletar-alvo/:id', async (req, res) => {
 
 app.get('/documento/:id', async (req, res) => {
     try {
-        const result = await pool.query('SELECT arquivo_base64, mime_type, nome_arquivo FROM documentos_alvo WHERE id = $1', [req.params.id]);
+        const result = await pool.query(
+            'SELECT arquivo_base64, mime_type, nome_arquivo FROM documentos_alvo WHERE id = $1',
+            [req.params.id]
+        );
         if (result.rows.length === 0) return res.status(404).json({ error: "Documento não encontrado" });
         res.json(result.rows[0]);
     } catch (err) {
