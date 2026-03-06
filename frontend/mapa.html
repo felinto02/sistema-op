@@ -6,6 +6,9 @@
     <title>Mapa Operacional - Polícia Civil</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <!-- Leaflet (OpenStreetMap) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <style>
         .home-icon {
             position: absolute; top: 25px; left: 20px;
@@ -14,7 +17,6 @@
         }
         .home-icon:hover { color: #ffd700; }
 
-        /* Mapa */
         #map-container {
             margin: 16px;
             height: 340px;
@@ -23,38 +25,36 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.5);
             border: 2px solid rgba(255,255,255,0.08);
             background: #1a1a2e;
+            position: relative;
         }
 
-        iframe { width: 100%; height: 100%; border: none; display: block; }
+        #mapa { width: 100%; height: 100%; }
 
-        /* Card de endereço */
+        .map-loading {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: #1a1a2e;
+            color: rgba(255,255,255,0.3); gap: 12px;
+            z-index: 999;
+        }
+        .map-loading i { font-size: 36px; }
+        .map-loading p { font-size: 13px; }
+
         .endereco-card {
             margin: 0 16px;
             background: rgba(255,255,255,0.07);
             border-radius: 12px;
             padding: 12px 16px;
-            display: flex;
+            display: none;
             align-items: center;
             gap: 12px;
             border: 1px solid rgba(255,215,0,0.15);
         }
+        .endereco-card i { color: #ffd700; font-size: 18px; flex-shrink: 0; }
+        .endereco-card span { color: rgba(255,255,255,0.85); font-size: 13px; line-height: 1.5; }
 
-        .endereco-card i {
-            color: #ffd700; font-size: 18px; flex-shrink: 0;
-        }
-
-        .endereco-card span {
-            color: rgba(255,255,255,0.85);
-            font-size: 13px; line-height: 1.5;
-        }
-
-        /* Botões de ação */
-        .acoes {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin: 16px;
-        }
+        .acoes { margin: 16px; }
 
         .btn-navegar {
             display: flex; align-items: center; justify-content: center; gap: 12px;
@@ -64,40 +64,16 @@
             box-shadow: 0 4px 15px rgba(46,204,113,0.35);
             transition: opacity 0.2s;
         }
-
         .btn-navegar:active { opacity: 0.85; }
 
-        .btn-link-maps {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            background: rgba(255,255,255,0.08);
-            color: rgba(255,255,255,0.8);
-            padding: 14px; border-radius: 14px;
-            text-decoration: none; font-size: 14px; font-weight: bold;
-            border: 1px solid rgba(255,255,255,0.12);
-            transition: background 0.2s;
-        }
-
-        .btn-link-maps:active { background: rgba(255,255,255,0.15); }
-
         .btn-voltar {
-            margin: 4px auto 40px;
+            margin: 16px auto 40px;
             display: inline-flex; align-items: center; gap: 10px;
             background: rgba(255,255,255,0.1); color: white;
             padding: 12px 28px; border-radius: 30px;
             text-decoration: none; font-weight: bold; transition: background 0.2s;
         }
-
         .btn-voltar:active { background: rgba(255,255,255,0.2); }
-
-        /* Loading state do mapa */
-        .map-loading {
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            height: 100%; color: rgba(255,255,255,0.3); gap: 12px;
-        }
-
-        .map-loading i { font-size: 36px; }
-        .map-loading p { font-size: 13px; }
     </style>
 </head>
 <body>
@@ -115,29 +91,25 @@
         <p class="nome-alvo">Alvo: <strong id="nome-exibicao">Carregando...</strong></p>
     </div>
 
-    <!-- Mapa embed -->
+    <!-- Mapa -->
     <div id="map-container">
         <div class="map-loading" id="map-loading">
             <i class="fas fa-map-marker-alt"></i>
-            <p>Carregando mapa...</p>
+            <p>Localizando endereço...</p>
         </div>
-        <iframe id="mapa-frame" src="" allowfullscreen loading="lazy" style="display:none;"
-            onload="document.getElementById('map-loading').style.display='none'; this.style.display='block';"></iframe>
+        <div id="mapa"></div>
     </div>
 
     <!-- Endereço -->
-    <div class="endereco-card" id="endereco-card" style="display:none;">
+    <div class="endereco-card" id="endereco-card">
         <i class="fas fa-map-marker-alt"></i>
-        <span id="txt-endereco">Buscando endereço...</span>
+        <span id="txt-endereco"></span>
     </div>
 
-    <!-- Ações -->
+    <!-- GPS -->
     <div class="acoes">
         <a href="#" id="link-gps" class="btn-navegar" target="_blank">
             <i class="fas fa-location-arrow"></i> INICIAR NAVEGAÇÃO GPS
-        </a>
-        <a href="#" id="link-maps" class="btn-link-maps" target="_blank">
-            <i class="fab fa-google"></i> Abrir no Google Maps
         </a>
     </div>
 
@@ -154,40 +126,71 @@
         const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
             ? "http://localhost:3000" : window.location.origin;
 
+        // Inicializa mapa Leaflet (OpenStreetMap - gratuito, sem API key)
+        const map = L.map('mapa', { zoomControl: true });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // Ícone personalizado dourado
+        const iconeAlvo = L.divIcon({
+            html: '<div style="background:#ffd700; width:20px; height:20px; border-radius:50%; border:3px solid #000; box-shadow:0 2px 8px rgba(0,0,0,0.5);"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10],
+            className: ''
+        });
+
         if (idAlvo) {
-            document.getElementById('home-link').href  = `home.html?id=${idAlvo}`;
+            document.getElementById('home-link').href   = `home.html?id=${idAlvo}`;
             document.getElementById('link-voltar').href = `home.html?id=${idAlvo}`;
 
             fetch(`${API_URL}/buscar-detalhes/${idAlvo}`)
                 .then(r => r.json())
                 .then(data => {
+                    document.getElementById('nome-exibicao').textContent = data.nome;
+
                     const endereco = [data.rua, data.numero, data.bairro, data.cidade, data.uf_endereco]
                         .filter(Boolean).join(', ');
 
-                    document.getElementById('nome-exibicao').textContent = data.nome;
-                    document.getElementById('txt-endereco').textContent  = endereco;
+                    document.getElementById('txt-endereco').textContent = endereco;
                     document.getElementById('endereco-card').style.display = 'flex';
 
-                    // Usa link_mapa se cadastrado, senão monta pelo endereço
-                    const destino = data.link_mapa && data.link_mapa.includes('maps')
-                        ? encodeURIComponent(data.link_mapa)
-                        : encodeURIComponent(endereco);
+                    // Se tiver link do Google Maps cadastrado, usa direto no GPS
+                    const gpsDestino = data.link_mapa && data.link_mapa.startsWith('http')
+                        ? data.link_mapa
+                        : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(endereco)}&travelmode=driving`;
 
-                    // Embed do mapa
-                    const embedUrl = `https://www.google.com/maps?q=${destino}&output=embed`;
-                    document.getElementById('mapa-frame').src = embedUrl;
+                    document.getElementById('link-gps').href = gpsDestino;
 
-                    // GPS — abre navegação direta
-                    const gpsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destino}&travelmode=driving`;
-                    document.getElementById('link-gps').href = gpsUrl;
+                    // Geocodifica o endereço via Nominatim (OpenStreetMap)
+                    const query = encodeURIComponent(`${data.rua} ${data.numero}, ${data.bairro}, ${data.cidade}, ${data.uf_endereco}, Brasil`);
+                    return fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`)
+                        .then(r => r.json())
+                        .then(geo => {
+                            document.getElementById('map-loading').style.display = 'none';
 
-                    // Link direto Google Maps
-                    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${destino}`;
-                    document.getElementById('link-maps').href = mapsUrl;
+                            if (geo && geo.length > 0) {
+                                const lat = parseFloat(geo[0].lat);
+                                const lon = parseFloat(geo[0].lon);
+                                map.setView([lat, lon], 17);
+                                L.marker([lat, lon], { icon: iconeAlvo })
+                                    .addTo(map)
+                                    .bindPopup(`<strong>${data.nome}</strong><br>${endereco}`)
+                                    .openPopup();
+                            } else {
+                                // Endereço não encontrado, mostra Brasil centralizado
+                                map.setView([-15.7801, -47.9292], 4);
+                                document.getElementById('map-loading').innerHTML =
+                                    '<i class="fas fa-exclamation-triangle"></i><p>Endereço não localizado</p>';
+                                document.getElementById('map-loading').style.display = 'flex';
+                            }
+                        });
                 })
                 .catch(err => {
                     console.error(err);
                     document.getElementById('nome-exibicao').textContent = "Erro ao carregar";
+                    document.getElementById('map-loading').innerHTML =
+                        '<i class="fas fa-exclamation-triangle"></i><p>Erro de conexão</p>';
                 });
         }
     </script>
