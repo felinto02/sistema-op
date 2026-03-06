@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informações Adicionais - Polícia Civil</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <style>
+        .home-icon { 
+            position: absolute; 
+            top: 25px; 
+            left: 20px; 
+            font-size: 24px; 
+            color: rgba(255, 255, 255, 0.7); 
+            text-decoration: none; 
+            z-index: 100;
+            transition: color 0.3s;
+        }
+        
+        .home-icon:hover {
+            color: #ffd700;
+        }
+        
+        .info-box { 
+            margin: 20px; 
+            padding: 20px; 
+            background-color: white; 
+            color: black; 
+            border-radius: 10px; 
+            text-align: justify; 
+            font-size: 16px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+        }
+        
+        .section-title { 
+            font-weight: bold; 
+            color: #3a0ca3; 
+            text-transform: uppercase; 
+            font-size: 13px; 
+            margin-bottom: 5px; 
+            margin-top: 15px;
+            display: block; 
+            border-bottom: 1px solid #ddd; 
+            padding-bottom: 5px;
+        }
+        
+        .content-text { 
+            margin-bottom: 20px; 
+            white-space: pre-wrap; 
+            display: block; 
+            line-height: 1.6;
+        }
+        
+        /* Container de Documentos */
+        .docs-container {
+            margin: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        .docs-title {
+            font-weight: bold;
+            color: #3a0ca3;
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 2px solid #ffd700;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .docs-count {
+            background: #ffd700;
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .doc-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: white;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        
+        .doc-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .doc-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .doc-icon {
+            font-size: 32px;
+            color: #ffd700;
+        }
+        
+        .doc-info h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .doc-info p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .doc-type-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-left: 8px;
+        }
+        
+        .doc-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-doc {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+        
+        .btn-doc:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-doc:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-download {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-view {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-share {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .no-docs {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-style: italic;
+        }
+        
+        .no-docs i {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+        
+        .btn-voltar { 
+            margin: 20px auto; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 10px; 
+            background: rgba(255, 255, 255, 0.1); 
+            color: white; 
+            padding: 12px 25px; 
+            border-radius: 30px; 
+            text-decoration: none; 
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-voltar:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
+        
+        /* Modal para visualizar PDF/Imagem */
+        .modal-viewer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            width: 95%;
+            height: 95%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            background: #3a0ca3;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-close-modal {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        
+        .btn-close-modal:hover {
+            background: #c0392b;
+        }
+        
+        .viewer-container {
+            flex: 1;
+            overflow: auto;
+            background: #f0f0f0;
+        }
+        
+        .pdf-viewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .image-viewer {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+        
+        /* Toast de notificação */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10000;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { 
+                bottom: -100px; 
+                opacity: 0;
+            }
+            to { 
+                bottom: 20px; 
+                opacity: 1;
+            }
+        }
+        
+        /* Loading spinner */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3a0ca3;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .doc-actions {
+                flex-direction: column;
+            }
+            
+            .btn-doc {
+                width: 100%;
+            }
+            
+            .modal-content {
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" id="home-link" class="home-icon" title="Voltar ao início">
+        <i class="fas fa-home"></i>
+    </a>
+    
+    <div class="header">
+        <img src="images/logo.png" alt="Polícia Civil">
+    </div>
+
+    <div class="title">
+        <h1>RONDÔNIA</h1>
+        <h2>POLÍCIA CIVIL</h2>
+    </div>
+
+    <div class="info-container">
+        <div class="subtitle">Informações de Inteligência</div>
+        <p class="nome-alvo">Alvo: <strong id="header-nome">Carregando...</strong></p>
+    </div>
+
+    <div class="info-box">
+        <span class="section-title"><i class="fas fa-user-secret"></i> Envolvimento do Alvo</span>
+        <span id="envolvimento" class="content-text">Buscando...</span>
+
+        <span class="section-title"><i class="fas fa-clipboard-list"></i> Detalhes da Operação</span>
+        <span id="detalhes" class="content-text">Buscando...</span>
+    </div>
+
+    <!-- Container de Documentos -->
+    <div class="docs-container" id="docs-container" style="display:none;">
+        <div class="docs-title">
+            <i class="fas fa-folder-open"></i> 
+            Documentação Anexa
+            <span class="docs-count" id="docs-count">0</span>
+        </div>
+        <div id="docs-list">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Carregando documentos...</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; padding: 20px;">
+        <a href="index.html" id="link-voltar" class="btn-voltar">
+            <i class="fas fa-arrow-left"></i> Voltar ao Início
+        </a>
+    </div>
+
+    <!-- Modal para visualizar PDF/Imagem -->
+    <div class="modal-viewer" id="modal-viewer">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title"><i class="fas fa-file"></i> Visualizando Documento</h3>
+                <button class="btn-close-modal" onclick="fecharModal()">
+                    <i class="fas fa-times"></i> Fechar
+                </button>
+            </div>
+            <div class="viewer-container" id="viewer-container"></div>
+        </div>
+    </div>
+
+    <!-- Toast de notificação -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i> Ação concluída!
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURAÇÃO GLOBAL
+        // ============================================
+        
+        const params = new URLSearchParams(window.location.search);
+        const idAlvo = params.get('id');
+
+        // Detecta ambiente automaticamente
+        const API_URL = window.location.hostname === "localhost" || 
+                        window.location.hostname === "127.0.0.1"
+            ? "http://localhost:3000" 
+            : window.location.origin;
+
+        console.log('🔍 Informações da Página');
+        console.log('ID do Alvo:', idAlvo);
+        console.log('API URL:', API_URL);
+
+        // ============================================
+        // CARREGAMENTO DE DADOS
+        // ============================================
+        
+        if (!idAlvo) {
+            document.getElementById('header-nome').textContent = "ID não fornecido";
+            document.getElementById('envolvimento').textContent = "Erro: ID do alvo não informado na URL";
+            document.getElementById('detalhes').textContent = "Acesse esta página através do sistema de consulta";
+        } else {
+            // Atualiza links de navegação
+            const urlIndex = `index.html?id=${idAlvo}`;
+            document.getElementById('link-voltar').href = urlIndex;
+            document.getElementById('home-link').href = urlIndex;
+
+            // Busca dados do alvo
+            carregarDadosAlvo();
+        }
+
+        async function carregarDadosAlvo() {
+            try {
+                console.log('📡 Buscando dados do alvo ID:', idAlvo);
+                
+                const response = await fetch(`${API_URL}/buscar-detalhes/${idAlvo}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ Dados recebidos:', data);
+                
+                // Atualiza informações básicas
+                document.getElementById('header-nome').textContent = data.nome || 'Nome não informado';
+                document.getElementById('envolvimento').textContent = data.envolvimento_alvo || "Não registrado.";
+                document.getElementById('detalhes').textContent = data.detalhes_operacao || "Sem observações complementares.";
+
+                // Carrega documentos (se houver)
+                if (data.documentos && data.documentos.length > 0) {
+                    exibirDocumentos(data.documentos);
+                } else {
+                    // Verifica campo antigo para compatibilidade
+                    if (data.mandado_pdf_base64) {
+                        exibirDocumentoAntigo(data);
+                    } else {
+                        exibirSemDocumentos();
+                    }
+                }
+                
+            } catch (error) {
+                console.error("❌ Erro ao carregar dados:", error);
+                document.getElementById('header-nome').textContent = "Erro ao carregar";
+                document.getElementById('envolvimento').textContent = `Erro de conexão: ${error.message}`;
+                document.getElementById('detalhes').textContent = "Verifique sua conexão e tente novamente";
+            }
+        }
+
+        // ============================================
+        // EXIBIÇÃO DE DOCUMENTOS
+        // ============================================
+        
+        function exibirDocumentos(documentos) {
+            console.log('📄 Exibindo documentos:', documentos.length);
+            
+            const container = document.getElementById('docs-container');
+            const docsList = document.getElementById('docs-list');
+            const docsCount = document.getElementById('docs-count');
+            
+            container.style.display = 'block';
+            docsCount.textContent = documentos.length;
+            
+            const tipoLabel = {
+                'mandado': 'Mandado Judicial',
+                'boletim': 'Boletim de Ocorrência',
+                'relatorio': 'Relatório de Investigação',
+                'oficio': 'Ofício',
+                'foto_investigacao': 'Foto de Investigação',
+                'outro': 'Outro Documento'
+            };
+            
+            docsList.innerHTML = documentos.map((doc, index) => {
+                const isPDF = doc.mime_type && doc.mime_type.includes('pdf');
+                const isImage = doc.mime_type && doc.mime_type.includes('image');
+                
+                const icone = isPDF ? 'fa-file-pdf' : (isImage ? 'fa-image' : 'fa-file');
+                const tipo = tipoLabel[doc.tipo_documento] || 'Documento';
+                const nomeArquivo = doc.nome_arquivo || `documento_${index + 1}.pdf`;
+                const descricao = doc.descricao || 'Documento oficial anexado ao registro';
+                
+                // Monta o data URI
+                const dataUri = `data:${doc.mime_type || 'application/pdf'};base64,${doc.arquivo_base64}`;
+                
+                return `
+                    <div class="doc-item">
+                        <div class="doc-header">
+                            <i class="fas ${icone} doc-icon"></i>
+                            <div class="doc-info">
+                                <h4>
+                                    ${tipo}
+                                    <span class="doc-type-badge">${isPDF ? 'PDF' : (isImage ? 'IMG' : 'DOC')}</span>
+                                </h4>
+                                <p><i class="fas fa-file-signature"></i> ${descricao}</p>
+                                <p style="opacity: 0.7; font-size: 11px;">
+                                    <i class="fas fa-paperclip"></i> ${nomeArquivo}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="doc-actions">
+                            <button class="btn-doc btn-view" onclick='visualizarDocumento(${JSON.stringify(dataUri)}, ${JSON.stringify(nomeArquivo)}, ${JSON.stringify(doc.mime_type)})'>
+                                <i class="fas fa-eye"></i> Visualizar
+                            </button>
+                            <a class="btn-doc btn-download" href="${dataUri}" download="${nomeArquivo}">
+                                <i class="fas fa-download"></i> Baixar
+                            </a>
+                            <button class="btn-doc btn-share" onclick='compartilharDocumento(${JSON.stringify(nomeArquivo)})'>
+                                <i class="fas fa-share-alt"></i> Compartilhar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function exibirDocumentoAntigo(data) {
+            console.log('📄 Exibindo documento antigo (compatibilidade)');
+            
+            const container = document.getElementById('docs-container');
+            const docsList = document.getElementById('docs-list');
+            const docsCount = document.getElementById('docs-count');
+            
+            container.style.display = 'block';
+            docsCount.textContent = '1';
+            
+            const nomeArquivo = data.nome_arquivo_pdf || 'Mandado_Judicial.pdf';
+            const pdfBase64 = data.mandado_pdf_base64;
+            const pdfDataUri = `data:application/pdf;base64,${pdfBase64}`;
+            
+            docsList.innerHTML = `
+                <div class="doc-item">
+                    <div class="doc-header">
+                        <i class="fas fa-file-pdf doc-icon"></i>
+                        <div class="doc-info">
+                            <h4>Mandado Judicial <span class="doc-type-badge">PDF</span></h4>
+                            <p>Documento oficial anexado ao registro</p>
+                            <p style="opacity: 0.7; font-size: 11px;">
+                                <i class="fas fa-paperclip"></i> ${nomeArquivo}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn-doc btn-view" onclick='visualizarDocumento(${JSON.stringify(pdfDataUri)}, ${JSON.stringify(nomeArquivo)}, "application/pdf")'>
+                            <i class="fas fa-eye"></i> Visualizar
+                        </button>
+                        <a class="btn-doc btn-download" href="${pdfDataUri}" download="${nomeArquivo}">
+                            <i class="fas fa-download"></i> Baixar
+                        </a>
+                        <button class="btn-doc btn-share" onclick='compartilharDocumento(${JSON.stringify(nomeArquivo)})'>
+                            <i class="fas fa-share-alt"></i> Compartilhar
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function exibirSemDocumentos() {
+            const container = document.getElementById('docs-container');
+            const docsList = document.getElementById('docs-list');
+            
+            container.style.display = 'block';
+            docsList.innerHTML = `
+                <div class="no-docs">
+                    <i class="fas fa-folder-open"></i>
+                    <p>Nenhum documento anexado a este registro</p>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // VISUALIZAÇÃO DE DOCUMENTOS
+        // ============================================
+        
+        function visualizarDocumento(dataUri, nomeArquivo, mimeType) {
+            console.log('👁️ Visualizando documento:', nomeArquivo);
+            
+            const modal = document.getElementById('modal-viewer');
+            const container = document.getElementById('viewer-container');
+            const title = document.getElementById('modal-title');
+            
+            const isPDF = mimeType && mimeType.includes('pdf');
+            const isImage = mimeType && mimeType.includes('image');
+            
+            const icone = isPDF ? 'fa-file-pdf' : (isImage ? 'fa-image' : 'fa-file');
+            
+            title.innerHTML = `<i class="fas ${icone}"></i> ${nomeArquivo}`;
+            
+            if (isPDF) {
+                container.innerHTML = `<iframe class="pdf-viewer" src="${dataUri}"></iframe>`;
+            } else if (isImage) {
+                container.innerHTML = `<img class="image-viewer" src="${dataUri}" alt="${nomeArquivo}">`;
+            } else {
+                container.innerHTML = `
+                    <div style="padding: 40px; text-align: center; color: #666;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px;"></i>
+                        <p>Este tipo de arquivo não pode ser visualizado diretamente.</p>
+                        <p>Por favor, faça o download para visualizá-lo.</p>
+                    </div>
+                `;
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function fecharModal() {
+            const modal = document.getElementById('modal-viewer');
+            const container = document.getElementById('viewer-container');
+            modal.style.display = 'none';
+            container.innerHTML = '';
+        }
+
+        // ============================================
+        // COMPARTILHAMENTO
+        // ============================================
+        
+        function compartilharDocumento(nomeArquivo) {
+            const linkCompartilhamento = `${window.location.origin}/informacao.html?id=${idAlvo}`;
+            
+            console.log('🔗 Compartilhando:', linkCompartilhamento);
+            
+            // Tenta usar a API nativa de compartilhamento (mobile)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Documento - Polícia Civil/RO',
+                    text: `Acesso ao documento: ${nomeArquivo}`,
+                    url: linkCompartilhamento
+                }).then(() => {
+                    mostrarToast('Compartilhado com sucesso!', 'success');
+                }).catch(err => {
+                    // Se cancelar, não faz nada
+                    if (err.name !== 'AbortError') {
+                        console.log('Compartilhamento cancelado ou erro:', err);
+                        copiarLink(linkCompartilhamento);
+                    }
+                });
+            } else {
+                // Fallback: copia o link
+                copiarLink(linkCompartilhamento);
+            }
+        }
+
+        function copiarLink(link) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(link).then(() => {
+                    mostrarToast('Link copiado para a área de transferência!', 'success');
+                }).catch(err => {
+                    console.error('Erro ao copiar:', err);
+                    copiarLinkFallback(link);
+                });
+            } else {
+                copiarLinkFallback(link);
+            }
+        }
+
+        function copiarLinkFallback(link) {
+            const input = document.createElement('input');
+            input.value = link;
+            input.style.position = 'fixed';
+            input.style.opacity = '0';
+            document.body.appendChild(input);
+            input.select();
+            
+            try {
+                document.execCommand('copy');
+                mostrarToast('Link copiado para a área de transferência!', 'success');
+            } catch (err) {
+                console.error('Erro ao copiar:', err);
+                mostrarToast('Erro ao copiar link', 'error');
+            }
+            
+            document.body.removeChild(input);
+        }
+
+        // ============================================
+        // NOTIFICAÇÕES
+        // ============================================
+        
+        function mostrarToast(mensagem, tipo = 'success') {
+            const toast = document.getElementById('toast');
+            
+            const icone = tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            const cor = tipo === 'success' ? '#27ae60' : '#e74c3c';
+            
+            toast.innerHTML = `<i class="fas ${icone}"></i> ${mensagem}`;
+            toast.style.background = cor;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        
+        // Fechar modal ao clicar fora
+        document.getElementById('modal-viewer').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharModal();
+            }
+        });
+
+        // Fechar modal com tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                fecharModal();
+            }
+        });
+
+        // Log de inicialização
+        console.log('✅ Página carregada com sucesso');
+    </script>
+</body>
+</html>

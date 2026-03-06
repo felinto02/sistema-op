@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Informações do Alvo - Polícia Civil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="header">
+        <img src="images/logo.png" alt="Polícia Civil">
+    </div>
+
+    <div class="title">
+        <h1>RONDÔNIA</h1>
+        <h2>POLÍCIA CIVIL</h2>
+    </div>
+
+    <div class="info-container">
+        <div class="subtitle">
+            Informações do Alvo
+        </div>
+
+        <p class="nome-alvo">
+            Nome do indivíduo:
+            <strong id="nome-alvo">carregando...</strong>
+        </p>
+    </div>
+
+
+  <div class="buttons">
+
+    <a id="btn-fotos" href="fotos.html" class="button">
+      <i class="fas fa-camera"></i>
+      <span>Fotos</span>
+    </a>
+
+    <a id="btn-mapa" href="mapa.html" class="button">
+      <i class="fas fa-map-marker-alt"></i>
+      <span>Mapa</span>
+    </a>
+
+    <a id="btn-qualificacao" href="qualificacao.html" class="button">
+      <i class="fas fa-id-card"></i>
+      <span>Qualificação</span>
+    </a>
+
+    <a id="btn-endereco" href="endereco.html" class="button">
+      <i class="fas fa-map-signs"></i>
+      <span>Endereço</span>
+    </a>
+
+    <a id="btn-informacao" href="informacao.html" class="button btn-full">
+      <i class="fas fa-info-circle"></i>
+      <span>Informações</span>
+    </a>
+  </div>
+
+  <script>
+    // 1. Detecta o ID do alvo na URL (ex: index.html?id=12)
+    const params = new URLSearchParams(window.location.search);
+    const idAlvo = params.get('id');
+
+    // 2. Lógica de URL Dinâmica: Detecta se está no PC ou no Render
+    // Se estiver no PC (localhost), usa a porta 3000. No Render, usa a URL do site.
+    const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+        ? "http://localhost:3000" 
+        : window.location.origin;
+
+    if (idAlvo) {
+        // 3. Repassa o ID para todos os botões do menu
+        const sufixo = `?id=${idAlvo}`;
+        document.getElementById('btn-fotos').href += sufixo;
+        document.getElementById('btn-mapa').href += sufixo;
+        document.getElementById('btn-qualificacao').href += sufixo;
+        document.getElementById('btn-endereco').href += sufixo;
+        document.getElementById('btn-informacao').href += sufixo;
+
+        // 4. Busca o nome do alvo usando a rota correta do seu server.js
+        // Importante: usei /buscar-detalhes/${idAlvo} conforme a rota no seu server.js
+        fetch(`${API_URL}/buscar-detalhes/${idAlvo}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Erro na resposta da rede');
+                return res.json();
+            })
+            .then(data => {
+                // Preenche o nome no cabeçalho
+                document.getElementById('nome-alvo').textContent = data.nome || "Não encontrado";
+            })
+            .catch(err => {
+                console.error("Erro ao buscar detalhes:", err);
+                document.getElementById('nome-alvo').textContent = "Erro de conexão";
+            });
+    } else {
+        document.getElementById('nome-alvo').textContent = "ID não fornecido";
+    }
+  </script>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
