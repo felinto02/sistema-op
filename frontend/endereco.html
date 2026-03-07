@@ -112,7 +112,7 @@
             justify-content: center; align-items: center;
         }
 
-        .modal-foto img { max-width: 100%; max-height: 92vh; object-fit: contain; }
+        .modal-foto img { max-width: 100%; max-height: 92vh; object-fit: contain; pointer-events: none; user-select: none; }
 
         .modal-close {
             position: absolute; top: 15px; right: 15px;
@@ -249,13 +249,17 @@
 
                     // Fotos do local
                     let temFoto = false;
+                    fotosLocal = [];
                     [['img-local1','card-local1', data.foto_local1],
                      ['img-local2','card-local2', data.foto_local2]].forEach(([imgId, cardId, b64]) => {
                         if (b64 && b64.length > 50) {
-                            document.getElementById(imgId).src = `data:image/jpeg;base64,${b64}`;
+                            const src = `data:image/jpeg;base64,${b64}`;
+                            document.getElementById(imgId).src = src;
                             const card = document.getElementById(cardId);
                             card.style.display = 'block';
-                            card.onclick = () => abrirFoto(`data:image/jpeg;base64,${b64}`);
+                            const idx = fotosLocal.length;
+                            fotosLocal.push(src);
+                            card.onclick = () => abrirFoto(idx);
                             temFoto = true;
                         }
                     });
@@ -267,8 +271,13 @@
                 });
         }
 
-        function abrirFoto(src) {
-            document.getElementById('modal-foto-img').src = src;
+        // Fotos carregadas para navegação
+        let fotosLocal = [];
+        let fotoAtual = 0;
+
+        function abrirFoto(idx) {
+            fotoAtual = idx;
+            document.getElementById('modal-foto-img').src = fotosLocal[idx];
             document.getElementById('modal-foto').style.display = 'flex';
         }
 
@@ -277,7 +286,35 @@
             document.getElementById('modal-foto-img').src = '';
         }
 
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharFoto(); });
+        // Swipe no modal
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        const modalEl = document.getElementById('modal-foto');
+
+        modalEl.addEventListener('touchstart', e => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        modalEl.addEventListener('touchend', e => {
+            if (fotosLocal.length <= 1) return;
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx)) return;
+            if (dx < 0) {
+                fotoAtual = (fotoAtual + 1) % fotosLocal.length;
+            } else {
+                fotoAtual = (fotoAtual - 1 + fotosLocal.length) % fotosLocal.length;
+            }
+            document.getElementById('modal-foto-img').src = fotosLocal[fotoAtual];
+        }, { passive: true });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') fecharFoto();
+            if (e.key === 'ArrowRight') { fotoAtual = (fotoAtual + 1) % fotosLocal.length; document.getElementById('modal-foto-img').src = fotosLocal[fotoAtual]; }
+            if (e.key === 'ArrowLeft')  { fotoAtual = (fotoAtual - 1 + fotosLocal.length) % fotosLocal.length; document.getElementById('modal-foto-img').src = fotosLocal[fotoAtual]; }
+        });
     </script>
 </body>
 </html>
