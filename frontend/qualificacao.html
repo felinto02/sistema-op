@@ -15,45 +15,6 @@
         }
         .home-icon:hover { color: #ffd700; }
 
-        /* Perfil */
-        .perfil-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px 20px 20px;
-            gap: 12px;
-        }
-
-        .foto-circulo {
-            width: 110px; height: 110px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 3px solid #ffd700;
-            box-shadow: 0 0 20px rgba(255,215,0,0.25);
-            background: rgba(255,255,255,0.07);
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .foto-circulo img {
-            width: 100%; height: 100%; object-fit: cover;
-            display: none;
-        }
-
-        .foto-circulo i {
-            font-size: 42px;
-            color: rgba(255,255,255,0.25);
-        }
-
-        .nome-destaque {
-            color: #ffd700;
-            font-size: 17px;
-            font-weight: bold;
-            text-align: center;
-            letter-spacing: 0.3px;
-        }
-
-        /* Cards de info */
         .info-lista {
             padding: 0 16px 30px;
             display: flex;
@@ -91,17 +52,16 @@
             word-break: break-word;
         }
 
-        /* Row de 2 cards lado a lado */
+        .nome-destaque {
+            font-size: 17px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .info-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        /* Row de 3 cards */
-        .info-row-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
         }
 
@@ -113,7 +73,6 @@
             text-decoration: none; font-weight: bold;
             transition: background 0.2s;
         }
-
         .btn-voltar:active { background: rgba(255,255,255,0.2); }
     </style>
 </head>
@@ -129,22 +88,14 @@
 
     <div class="info-container">
         <div class="subtitle">Qualificação do Alvo</div>
+        <p class="nome-alvo">Alvo: <strong id="header-nome">Carregando...</strong></p>
     </div>
 
-    <!-- Foto + Nome -->
-    <div class="perfil-box">
-        <div class="foto-circulo" id="foto-circulo">
-            <i class="fas fa-user" id="foto-icon"></i>
-            <img id="img-principal" alt="Foto do Alvo">
-        </div>
-    </div>
-
-    <!-- Dados -->
     <div class="info-lista">
 
         <div class="info-card">
             <span class="label"><i class="fas fa-id-badge"></i> Nome Completo</span>
-            <span class="value" id="nome">...</span>
+            <span class="value nome-destaque" id="nome">...</span>
         </div>
 
         <div class="info-card">
@@ -206,27 +157,18 @@
             fetch(`${API_URL}/buscar-detalhes/${idAlvo}`)
                 .then(r => r.json())
                 .then(data => {
-                    document.getElementById('header-nome').textContent  = data.nome         || 'N/A';
-                    document.getElementById('nome').textContent         = data.nome         || 'Não informado';
-                    document.getElementById('nome-mae').textContent     = data.mae          || 'Não informado';
-                    document.getElementById('nome-pai').textContent     = data.pai          || 'Não informado';
-                    document.getElementById('cpf').textContent          = data.cpf          || 'Não informado';
-                    document.getElementById('rg').textContent           = data.rg           || 'Não informado';
-                    document.getElementById('natural').textContent      = data.naturalidade || 'Não informado';
-                    document.getElementById('uf').textContent           = data.uf_natural   || '--';
+                    document.getElementById('header-nome').textContent = data.nome         || 'N/A';
+                    document.getElementById('nome').textContent        = data.nome         || 'Não informado';
+                    document.getElementById('nome-mae').textContent    = data.mae          || 'Não informado';
+                    document.getElementById('nome-pai').textContent    = data.pai          || 'Não informado';
+                    document.getElementById('cpf').textContent         = data.cpf          || 'Não informado';
+                    document.getElementById('rg').textContent          = data.rg           || 'Não informado';
+                    document.getElementById('natural').textContent     = data.naturalidade || 'Não informado';
+                    document.getElementById('uf').textContent          = data.uf_natural   || '--';
 
                     if (data.data_nascimento) {
                         document.getElementById('data-nascimento').textContent =
                             new Date(data.data_nascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-                    }
-
-                    // Foto principal
-                    const fotoB64 = data.foto1 || data.foto2 || data.foto3;
-                    if (fotoB64 && fotoB64.length > 50) {
-                        const img = document.getElementById('img-principal');
-                        img.src = `data:image/jpeg;base64,${fotoB64}`;
-                        img.style.display = 'block';
-                        document.getElementById('foto-icon').style.display = 'none';
                     }
                 })
                 .catch(err => {
